@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent IA Template Generator</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Icônes simples en SVG
+        const MessageCircle = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+        );
+        
+        const Wand2 = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 21h16M17 9v4M21 11v2" />
+            </svg>
+        );
+        
+        const Code = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+        );
+        
+        const Palette = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 21h16" />
+            </svg>
+        );
+        
+        const Zap = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+        );
+        
+        const Settings = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        );
+        
+        const Download = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+        );
+        
+        const Eye = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+        );
+        
+        const Trash2 = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        );
+
+        const TemplateAIAgent = () => {
+            const [messages, setMessages] = useState([]);
+            const [inputMessage, setInputMessage] = useState('');
+            const [generatedTemplates, setGeneratedTemplates] = useState([]);
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [aiStatus, setAiStatus] = useState('online');
+
+            const templateTypes = {
+                restaurant: {
+                    name: 'Restaurant',
+                    icon: '🍽️',
+                    description: 'Templates pour restaurants, cafés, food trucks',
+                    sections: ['header', 'hero', 'menu', 'about', 'contact', 'gallery', 'testimonials', 'pricing', 'blog', 'events']
+                },
+                ecommerce: {
+                    name: 'E-commerce',
+                    icon: '🛒',
+                    description: 'Boutiques en ligne, catalogues produits',
+                    sections: ['header', 'hero', 'products', 'categories', 'cart', 'checkout', 'testimonials', 'footer']
+                },
+                portfolio: {
+                    name: 'Portfolio',
+                    icon: '🎨',
+                    description: 'Sites pour créatifs, artistes, développeurs',
+                    sections: ['header', 'hero', 'projects', 'about', 'skills', 'contact', 'testimonials']
+                },
+                business: {
+                    name: 'Business',
+                    icon: '💼',
+                    description: 'Sites d\'entreprise, services professionnels',
+                    sections: ['header', 'hero', 'services', 'about', 'team', 'contact', 'testimonials', 'pricing']
+                },
+                blog: {
+                    name: 'Blog',
+                    icon: '📝',
+                    description: 'Blogs, magazines, sites de contenu',
+                    sections: ['header', 'hero', 'articles', 'categories', 'sidebar', 'contact', 'newsletter']
+                },
+                landing: {
+                    name: 'Landing Page',
+                    icon: '🚀',
+                    description: 'Pages de conversion, campagnes marketing',
+                    sections: ['header', 'hero', 'features', 'benefits', 'testimonials', 'pricing', 'cta', 'footer']
+                }
+            };
+
+            useEffect(() => {
+                setMessages([
+                    {
+                        id: 1,
+                        type: 'agent',
+                        content: "👋 Salut ! Je suis votre Agent IA spécialisé dans la création de templates et d'applications web.\n\n🎯 **Ce que je peux faire pour vous :**\n• Créer des templates complets (Restaurant, E-commerce, Portfolio, etc.)\n• Générer du code HTML, CSS, JavaScript\n• Personnaliser le design selon vos besoins\n• Optimiser pour mobile et SEO\n• Exporter pour Netlify, Vercel, etc.\n\n💬 **Comment commencer ?**\nDites-moi simplement quel type de site vous voulez créer !\n\nExemples :\n- \"Je veux un site pour mon restaurant italien\"\n- \"Crée-moi une boutique en ligne pour des vêtements\"\n- \"J'ai besoin d'un portfolio pour mes photos\"",
+                        timestamp: new Date()
+                    }
+                ]);
+            }, []);
+
+            const handleSendMessage = async () => {
+                if (!inputMessage.trim()) return;
+
+                const userMessage = {
+                    id: Date.now(),
+                    type: 'user',
+                    content: inputMessage,
+                    timestamp: new Date()
+                };
+
+                setMessages(prev => [...prev, userMessage]);
+                setInputMessage('');
+                setIsGenerating(true);
+
+                
+                    const aiResponse = await callRealAI(inputMessage);
+                    setMessages(prev => [...prev, aiResponse]);
+                    setIsGenerating(false);
+               
+            };
+
+            const callRealAI = async (userMessage) => {
+  try {
+    setAiStatus('thinking');
+    
+    const response = await fetch('/.netlify/functions/ai-chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        systemPrompt: `Tu es un expert en création de sites web et design. Analyse la demande de l'utilisateur et :
+
+1. Identifie le type de site web nécessaire (restaurant, ecommerce, portfolio, business)
+2. Recommande les sections appropriées
+3. Suggère des couleurs et un style
+4. Propose des fonctionnalités spécifiques
+5. Donne des conseils personnalisés
+
+Réponds de manière conversationnelle et enthousiaste. Utilise des emojis et du markdown pour structurer ta réponse.`,
+        context: { previousMessages: messages.slice(-3) }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur API: ${response.status}`);
+    }
+
+    const aiResponse = await response.json();
+    setAiStatus('online');
+    
+    return {
+      content: aiResponse.response,
+      detectedType: aiResponse.detectedType,
+      recommendations: aiResponse.recommendations,
+      showGenerateButton: aiResponse.detectedType ? true : false
+    };
+
+  } catch (error) {
+    console.error('Erreur IA:', error);
+    setAiStatus('error');
+    // Fallback vers l'ancienne logique
+    return generateAIResponse(userMessage);
+  }
+};
+
+            const generateAIResponse = (userInput) => {
+                const input = userInput.toLowerCase();
+                
+                let detectedType = null;
+                let sections = [];
+                
+                if (input.includes('restaurant') || input.includes('café') || input.includes('food') || input.includes('menu')) {
+                    detectedType = 'restaurant';
+                    sections = templateTypes.restaurant.sections;
+                } else if (input.includes('boutique') || input.includes('ecommerce') || input.includes('vente') || input.includes('produit')) {
+                    detectedType = 'ecommerce';
+                    sections = templateTypes.ecommerce.sections;
+                } else if (input.includes('portfolio') || input.includes('artiste') || input.includes('photo') || input.includes('créatif')) {
+                    detectedType = 'portfolio';
+                    sections = templateTypes.portfolio.sections;
+                } else if (input.includes('entreprise') || input.includes('business') || input.includes('service') || input.includes('professionnel')) {
+                    detectedType = 'business';
+                    sections = templateTypes.business.sections;
+                } else if (input.includes('blog') || input.includes('article') || input.includes('contenu')) {
+                    detectedType = 'blog';
+                    sections = templateTypes.blog.sections;
+                } else if (input.includes('landing') || input.includes('conversion') || input.includes('campagne')) {
+                    detectedType = 'landing';
+                    sections = templateTypes.landing.sections;
+                }
+
+                if (detectedType) {
+                    return {
+                        id: Date.now(),
+                        type: 'agent',
+                        content: `🎯 **Parfait ! J'ai détecté que vous voulez un template ${templateTypes[detectedType].name}**\n\n${templateTypes[detectedType].description}\n\n📋 **Sections recommandées :**\n${sections.map(s => `• ${s.charAt(0).toUpperCase() + s.slice(1)}`).join('\n')}\n\n🎨 **Options de personnalisation :**\n• Couleurs et thème\n• Images et contenu\n• Animations et effets\n• Responsive design\n\n✨ Voulez-vous que je génère ce template maintenant ? Cliquez sur "Générer Template" ci-dessous !`,
+                        timestamp: new Date(),
+                        templateType: detectedType,
+                        sections: sections,
+                        showGenerateButton: true
+                    };
+                } else {
+                    return {
+                        id: Date.now(),
+                        type: 'agent',
+                        content: `🤔 Je n'ai pas bien compris votre demande.\n\n📋 **Types de templates disponibles :**\n${Object.entries(templateTypes).map(([key, template]) => 
+                            `${template.icon} **${template.name}** - ${template.description}`
+                        ).join('\n')}\n\n💡 **Essayez de me dire :**\n• Le type d'activité ou de site\n• Vos besoins spécifiques\n• Le style que vous préférez\n\nExemple : "Je veux créer un site pour mon restaurant japonais avec un menu en ligne"`,
+                        timestamp: new Date()
+                    };
+                }
+            };
+
+            const generateTemplate = (templateType, sections) => {
+                setIsGenerating(true);
+                
+                setTimeout(() => {
+                    const newTemplate = {
+                        id: Date.now(),
+                        type: templateType,
+                        name: `${templateTypes[templateType].name} Template`,
+                        sections: sections,
+                        createdAt: new Date(),
+                        status: 'ready',
+                        preview: `Template ${templateTypes[templateType].name} avec ${sections.length} sections`
+                    };
+
+                    setGeneratedTemplates(prev => [...prev, newTemplate]);
+                    setIsGenerating(false);
+
+                    const confirmMessage = {
+                        id: Date.now(),
+                        type: 'agent',
+                        content: `✅ **Template généré avec succès !**\n\n🎉 Votre template ${templateTypes[templateType].name} est prêt avec ${sections.length} sections.\n\n📋 **Fichiers générés :**\n• HTML (Structure)\n• CSS (Design responsive)\n• JavaScript (Interactions)\n\n🚀 **Prochaines étapes :**\n• Prévisualiser le template\n• Personnaliser le contenu\n• Télécharger les fichiers\n• Déployer sur Netlify/Vercel\n\nVoulez-vous que je personnalise quelque chose ?`,
+                        timestamp: new Date()
+                    };
+
+                    setMessages(prev => [...prev, confirmMessage]);
+                }, 3000);
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+                    <header className="bg-white shadow-sm border-b">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between items-center h-16">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                                        <Wand2 />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl font-bold text-gray-900">Agent IA Template</h1>
+                                        <p className="text-sm text-gray-500">Générateur intelligent de sites web</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <span className="text-sm text-green-600 font-medium">🟢 En ligne</span>
+                                    <Settings />
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            
+                            <div className="lg:col-span-2">
+                                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                    <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4">
+                                        <div className="flex items-center space-x-3">
+                                            <MessageCircle />
+                                            <div>
+                                                <h2 className="text-white font-semibold">Assistant IA Templates</h2>
+                                                <p className="text-purple-100 text-sm">Créez votre site en quelques minutes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-96 overflow-y-auto p-6 space-y-4">
+                                        {messages.map((message) => (
+                                            <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} chat-message`}>
+                                                <div className={`max-w-2xl px-4 py-3 rounded-lg ${
+                                                    message.type === 'user' 
+                                                        ? 'bg-blue-600 text-white' 
+                                                        : 'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                    <div className="whitespace-pre-line">{message.content}</div>
+                                                    {message.showGenerateButton && (
+                                                        <button
+                                                            onClick={() => generateTemplate(message.templateType, message.sections)}
+                                                            className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                                                            disabled={isGenerating}
+                                                        >
+                                                            {isGenerating ? (
+                                                                <>
+                                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                                                    <span>Génération...</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Zap />
+                                                                    <span>Générer Template</span>
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                    <div className="text-xs opacity-70 mt-2">
+                                                        {message.timestamp.toLocaleTimeString()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        
+                                        {isGenerating && (
+                                            <div className="flex justify-start">
+                                                <div className="bg-gray-100 text-gray-800 px-4 py-3 rounded-lg">
+                                                    <div className="flex items-center space-x-2">
+                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                                                        <span>L'IA génère votre template...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="border-t p-4">
+                                        <div className="flex space-x-3">
+                                            <input
+                                                type="text"
+                                                value={inputMessage}
+                                                onChange={(e) => setInputMessage(e.target.value)}
+                                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                                placeholder="Décrivez le site que vous voulez créer..."
+                                                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                            <button
+                                                onClick={handleSendMessage}
+                                                disabled={!inputMessage.trim() || isGenerating}
+                                                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                Envoyer
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+                                        <Palette />
+                                        <span>Types de Templates</span>
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {Object.entries(templateTypes).map(([key, template]) => (
+                                            <div key={key} className="p-3 border border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer">
+                                                <div className="flex items-center space-x-3">
+                                                    <span className="text-2xl">{template.icon}</span>
+                                                    <div>
+                                                        <div className="font-medium text-gray-900">{template.name}</div>
+                                                        <div className="text-sm text-gray-500">{template.description}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+                                        <Code />
+                                        <span>Templates Générés</span>
+                                    </h3>
+                                    
+                                    {generatedTemplates.length === 0 ? (
+                                        <div className="text-center py-8 text-gray-500">
+                                            <div className="text-4xl mb-2">📝</div>
+                                            <p>Aucun template généré</p>
+                                            <p className="text-sm">Commencez par décrire votre projet</p>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {generatedTemplates.map((template) => (
+                                                <div key={template.id} className="border border-gray-200 rounded-lg p-4">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <h4 className="font-medium text-gray-900">{template.name}</h4>
+                                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                                            {template.status}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-600 mb-3">{template.preview}</p>
+                                                    <div className="flex space-x-2">
+                                                        <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm">
+                                                            <Eye />
+                                                            <span>Voir</span>
+                                                        </button>
+                                                        <button className="flex items-center space-x-1 text-green-600 hover:text-green-800 text-sm">
+                                                            <Download />
+                                                            <span>Télécharger</span>
+                                                        </button>
+                                                        <button className="flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm">
+                                                            <Trash2 />
+                                                            <span>Supprimer</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<TemplateAIAgent />, document.getElementById('root'));
+    </script>
+</body>
+</html>
