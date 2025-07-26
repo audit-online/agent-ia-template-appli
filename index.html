@@ -280,9 +280,17 @@
                     const result = await response.json();
                     let htmlCode = result.response;
                     
+                    // Nettoyage plus robuste du code
                     htmlCode = htmlCode.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
                     
-                    if (htmlCode.includes('<!DOCTYPE') && htmlCode.includes('</html>')) {
+                    // Si pas de DOCTYPE, essayer de récupérer juste le contenu HTML
+                    if (!htmlCode.includes('<!DOCTYPE')) {
+                        // L'IA a peut-être renvoyé juste le contenu, on l'encapsule
+                        htmlCode = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Template Genere</title></head><body>' + htmlCode + '</body></html>';
+                    }
+                    
+                    // Validation plus permissive
+                    if (htmlCode.includes('<html') || htmlCode.includes('<body') || htmlCode.length > 100) {
                         createTemplate(userInput, htmlCode, 'ai');
                         setMessages(prev => [...prev, {
                             id: Date.now(),
@@ -290,7 +298,7 @@
                             content: 'Template genere par l IA Claude !\n\nCode HTML complet cree. Cliquez sur Previsualiser pour voir le resultat.'
                         }]);
                     } else {
-                        throw new Error('Code HTML invalide genere par l IA');
+                        throw new Error('Code HTML trop court ou invalide: ' + htmlCode.substring(0, 100));
                     }
                 } catch (error) {
                     console.error('Erreur IA:', error);
