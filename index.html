@@ -111,7 +111,58 @@
         }
       };
 
-           /* –––––  envoi message AMÉLIORÉ ––––– */
+      /* –––––  NOUVEAU : chat conversationnel ––––– */
+const handleConversation = async (userInput) => {
+  setIsGenerating(true);
+  try {
+    const res = await fetch('/.netlify/functions/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: userInput,
+        systemPrompt: 'Tu es un assistant IA spécialisé dans la création de sites web. Tu peux discuter de tout ce qui concerne le web design, donner des conseils, expliquer des concepts, et bien sûr créer des templates. Réponds de manière conversationnelle et amicale. Si l utilisateur veut créer un template, dis-lui clairement qu il doit utiliser des mots comme "crée", "génère", "template", "site pour".'
+      })
+    });
+    
+    if (!res.ok) throw new Error('Erreur IA');
+    const data = await res.json();
+    
+    setMessages(prev => [...prev, { 
+      id: Date.now(), 
+      type: 'agent', 
+      content: data.response 
+    }]);
+    
+  } catch (error) {
+    setMessages(prev => [...prev, { 
+      id: Date.now(), 
+      type: 'agent', 
+      content: 'Désolé, je rencontre un problème technique. Pouvez-vous reformuler votre question ?' 
+    }]);
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
+/* –––––  NOUVEAU : détection du type de demande ––––– */
+const detectRequestType = (message) => {
+  const templateKeywords = ['crée', 'créer', 'génère', 'générer', 'template', 'site pour', 'site web', 'page pour', 'faire un site'];
+  const modifyKeywords = ['change', 'modifie', 'modifier', 'remplace', 'couleur', 'ajoute', 'supprime'];
+  
+  const lowerMessage = message.toLowerCase();
+  
+  if (currentTemplate && modifyKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    return 'modify';
+  }
+  
+  if (templateKeywords.some(keyword => lowerMessage.includes(keyword))) {
+    return 'template';
+  }
+  
+  return 'conversation';
+};
+
+  /* –––––  envoi message INTELLIGENT ––––– */
 const handleSendMessage = async () => {
   if (!inputMessage.trim()) return;
   const userMessage = { id: Date.now(), type: 'user', content: inputMessage };
@@ -119,12 +170,24 @@ const handleSendMessage = async () => {
   const messageContent = inputMessage;
   setInputMessage('');
 
-  // Détecter si c'est une modification du template actuel
-  if (currentTemplate && isModificationRequest(messageContent)) {
-    await modifyCurrentTemplate(messageContent);
-  } else {
-    // Créer un nouveau template
-    apiStatus === 'working' ? await generateWithAI(messageContent) : generateTestTemplate(messageContent);
+  if (apiStatus !== 'working') {
+    generateTestTemplate(messageContent);
+    return;
+  }
+
+  // Détecter le type de demande
+  const requestType = detectRequestType(messageContent);
+  
+  switch (requestType) {
+    case 'modify':
+      await modifyCurrentTemplate(messageContent);
+      break;
+    case 'template':
+      await generateWithAI(messageContent);
+      break;
+    case 'conversation':
+      await handleConversation(messageContent);
+      break;
   }
 };
 
@@ -319,7 +382,7 @@ End with </html>, no markdown fences.
                       value: inputMessage,
                       onChange: e => setInputMessage(e.target.value),
                       onKeyPress: handleKeyPress,
-                      placeholder: currentTemplate ? 'Modifiez le template (ex: "change la couleur en bleu", "ajoute des photos")...' : 'Décrivez votre projet...',
+                     placeholder: 'Discutez avec l IA ou demandez un template...',
                       disabled: isGenerating
                     })
                   ),
@@ -327,7 +390,7 @@ End with </html>, no markdown fences.
                     onClick: handleSendMessage,
                     disabled: !inputMessage.trim() || isGenerating,
                     className: 'btn btn-primary'
-                 }, currentTemplate ? 'Modifier' : 'Générer')
+                 }, 'Envoyer')
                 )
               )
             ),
