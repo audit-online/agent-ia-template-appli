@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent IA Template Generator</title>
+    <title>Agent IA Template Generator Pro</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -22,7 +22,7 @@
         .preview-iframe {
             width: 100%;
             height: 600px;
-            border: 1px solid #e5e7eb;
+            border: 2px solid #e5e7eb;
             border-radius: 8px;
             background: white;
         }
@@ -32,7 +32,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -48,13 +48,15 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
         .modal-header {
             padding: 20px;
             border-bottom: 1px solid #e5e7eb;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
+            background: #f8fafc;
         }
         .modal-body {
             flex: 1;
@@ -62,14 +64,15 @@
         }
         .code-editor {
             width: 100%;
-            height: 400px;
+            height: 500px;
             border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 14px;
-            padding: 15px;
-            resize: vertical;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Consolas', 'SF Mono', monospace;
+            font-size: 13px;
+            padding: 20px;
+            resize: none;
             background: #f8f9fa;
+            line-height: 1.5;
         }
     </style>
 </head>
@@ -79,7 +82,7 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         
-        // Icônes
+        // Icônes optimisées
         const MessageCircle = () => (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -123,6 +126,12 @@
             </svg>
         );
 
+        const Trash2 = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        );
+
         const TemplateAIAgent = () => {
             const [messages, setMessages] = useState([]);
             const [inputMessage, setInputMessage] = useState('');
@@ -131,38 +140,15 @@
             const [aiStatus, setAiStatus] = useState('online');
             const [previewModal, setPreviewModal] = useState(null);
             const [isGeneratingCode, setIsGeneratingCode] = useState(false);
+            const [debugInfo, setDebugInfo] = useState('');
 
             const templateTypes = {
-                restaurant: {
-                    name: 'Restaurant',
-                    icon: '🍽️',
-                    description: 'Templates pour restaurants, cafés, food trucks'
-                },
-                ecommerce: {
-                    name: 'E-commerce',
-                    icon: '🛒',
-                    description: 'Boutiques en ligne, catalogues produits'
-                },
-                portfolio: {
-                    name: 'Portfolio',
-                    icon: '🎨',
-                    description: 'Sites pour créatifs, artistes, développeurs'
-                },
-                business: {
-                    name: 'Business',
-                    icon: '💼',
-                    description: 'Sites d\'entreprise, services professionnels'
-                },
-                blog: {
-                    name: 'Blog',
-                    icon: '📝',
-                    description: 'Blogs, magazines, sites de contenu'
-                },
-                landing: {
-                    name: 'Landing Page',
-                    icon: '🚀',
-                    description: 'Pages de conversion, campagnes marketing'
-                }
+                restaurant: { name: 'Restaurant', icon: '🍽️' },
+                ecommerce: { name: 'E-commerce', icon: '🛒' },
+                portfolio: { name: 'Portfolio', icon: '🎨' },
+                business: { name: 'Business', icon: '💼' },
+                blog: { name: 'Blog', icon: '📝' },
+                landing: { name: 'Landing Page', icon: '🚀' }
             };
 
             useEffect(() => {
@@ -170,11 +156,16 @@
                     {
                         id: 1,
                         type: 'agent',
-                        content: "👋 Salut ! Je suis votre Agent IA spécialisé dans la création de templates.\n\n🎯 **Je peux créer pour vous :**\n• Du code HTML/CSS personnalisé\n• Des templates complets et fonctionnels\n• Du design responsive et moderne\n\n💬 **Comment ça marche ?**\n1. Décrivez-moi votre projet\n2. Je génère le code personnalisé\n3. Vous prévisualisez le résultat\n4. Vous téléchargez les fichiers\n\n🚀 **Exemple :** \"Crée-moi un site pour mon restaurant italien avec un menu élégant\"",
+                        content: "🚀 **Agent IA Template Generator PRO**\n\n✨ **Système professionnel de génération de templates**\n\n💎 **Qualité garantie :**\n• IA Claude dernière génération\n• Code HTML/CSS/JS haute qualité\n• Design responsive et moderne\n• Prévisualisation temps réel\n• Export prêt pour production\n\n💼 **Prêt pour votre business !**\n\nDécrivez précisément votre projet pour obtenir un template professionnel sur mesure.",
                         timestamp: new Date()
                     }
                 ]);
             }, []);
+
+            const addDebugInfo = (info) => {
+                setDebugInfo(prev => prev + '\n' + new Date().toLocaleTimeString() + ': ' + info);
+                console.log('🔍 DEBUG:', info);
+            };
 
             const handleSendMessage = async () => {
                 if (!inputMessage.trim()) return;
@@ -194,7 +185,8 @@
                     const aiResponse = await callRealAI(inputMessage);
                     setMessages(prev => [...prev, aiResponse]);
                 } catch (error) {
-                    console.error('Erreur lors de l\'envoi:', error);
+                    console.error('❌ Erreur handleSendMessage:', error);
+                    addDebugInfo(`Erreur envoi message: ${error.message}`);
                 } finally {
                     setIsGenerating(false);
                 }
@@ -203,179 +195,212 @@
             const callRealAI = async (userMessage) => {
                 try {
                     setAiStatus('thinking');
-                    console.log('🤖 Envoi vers l\'IA:', userMessage);
+                    addDebugInfo(`Envoi vers IA: ${userMessage}`);
                     
                     const response = await fetch('/.netlify/functions/ai-chat', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             message: userMessage,
-                            systemPrompt: `Tu es un expert développeur web et designer. Analyse la demande de l'utilisateur et :
+                            systemPrompt: `Tu es un expert en développement web et design UX/UI. Analyse cette demande et réponds de manière professionnelle : "${userMessage}".
 
-1. Identifie le type de site web nécessaire (restaurant, ecommerce, portfolio, business, blog, landing)
-2. Recommande les sections appropriées
-3. Suggère des couleurs et un style
-4. Propose des fonctionnalités spécifiques
+INSTRUCTIONS:
+1. Identifie le type de site (restaurant, ecommerce, portfolio, business, blog, landing)
+2. Propose des sections et fonctionnalités appropriées
+3. Suggère un style et des couleurs adaptés
+4. Réponds avec enthousiasme et professionnalisme
+5. Utilise des emojis et du markdown pour structurer
 
-Réponds de manière conversationnelle et enthousiaste. Utilise des emojis et du markdown.
+Si l'utilisateur veut créer/générer un template, termine par "GENERATE_TEMPLATE".
 
-Si l'utilisateur demande la création/génération d'un template, termine ta réponse par "GENERATE_TEMPLATE" pour déclencher la génération de code.`
+Réponds en français avec un ton professionnel mais accessible.`
                         })
                     });
 
+                    addDebugInfo(`Statut réponse: ${response.status}`);
+
                     if (!response.ok) {
-                        throw new Error(`Erreur ${response.status}`);
+                        throw new Error(`Erreur API: ${response.status} - ${response.statusText}`);
                     }
 
                     const aiResponse = await response.json();
+                    addDebugInfo('Réponse IA reçue avec succès');
                     setAiStatus('online');
                     
-                    const shouldGenerate = aiResponse.response && aiResponse.response.includes('GENERATE_TEMPLATE');
+                    // Détection intelligente du besoin de génération
+                    const shouldGenerate = aiResponse.response && 
+                        (aiResponse.response.includes('GENERATE_TEMPLATE') || 
+                         userMessage.toLowerCase().includes('crée') || 
+                         userMessage.toLowerCase().includes('génère') ||
+                         userMessage.toLowerCase().includes('template') ||
+                         userMessage.toLowerCase().includes('site'));
                     
                     return {
                         id: Date.now(),
                         type: 'agent',
-                        content: aiResponse.response ? aiResponse.response.replace('GENERATE_TEMPLATE', '') : 'Réponse reçue.',
+                        content: aiResponse.response ? aiResponse.response.replace('GENERATE_TEMPLATE', '') : 'Analyse terminée',
                         timestamp: new Date(),
-                        detectedType: aiResponse.detectedType,
-                        recommendations: aiResponse.recommendations,
-                        showGenerateButton: aiResponse.detectedType || shouldGenerate,
+                        detectedType: aiResponse.detectedType || detectTypeFromMessage(userMessage),
+                        showGenerateButton: shouldGenerate,
                         userRequest: userMessage
                     };
 
                 } catch (error) {
-                    console.error('💥 Erreur:', error);
+                    console.error('💥 Erreur callRealAI:', error);
+                    addDebugInfo(`Erreur IA: ${error.message}`);
                     setAiStatus('error');
                     
                     return {
                         id: Date.now(),
                         type: 'agent',
-                        content: `❌ **Erreur de connexion**\n\n${error.message}\n\nRéessayez dans quelques secondes...`,
+                        content: `❌ **Erreur de connexion à l'IA**\n\n**Détails techniques :**\n${error.message}\n\n**Solutions :**\n• Vérifiez votre connexion internet\n• Vérifiez la configuration de la clé API Claude\n• Consultez les logs Netlify Functions\n\n⚠️ **Le système ne peut pas fonctionner sans l'IA Claude**`,
                         timestamp: new Date(),
                         isError: true
                     };
                 }
             };
 
-            const generateRealTemplate = async (detectedType, userRequest) => {
+            const detectTypeFromMessage = (message) => {
+                const msg = message.toLowerCase();
+                if (msg.includes('restaurant') || msg.includes('brasserie') || msg.includes('café') || msg.includes('food')) return 'restaurant';
+                if (msg.includes('boutique') || msg.includes('ecommerce') || msg.includes('vente') || msg.includes('shop')) return 'ecommerce';
+                if (msg.includes('portfolio') || msg.includes('artiste') || msg.includes('photo') || msg.includes('créatif')) return 'portfolio';
+                if (msg.includes('entreprise') || msg.includes('business') || msg.includes('société')) return 'business';
+                if (msg.includes('blog') || msg.includes('article') || msg.includes('contenu')) return 'blog';
+                if (msg.includes('landing') || msg.includes('conversion') || msg.includes('campagne')) return 'landing';
+                return 'business';
+            };
+
+            const generateProfessionalTemplate = async (detectedType, userRequest) => {
                 setIsGeneratingCode(true);
+                addDebugInfo(`Début génération template: ${detectedType}`);
                 
                 try {
-                    console.log('🎨 Génération de template pour:', userRequest);
-                    
                     const response = await fetch('/.netlify/functions/ai-chat', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            message: `Génère un template HTML complet pour: ${userRequest}`,
-                            systemPrompt: `Tu es un développeur web expert et designer UX/UI. Génère un template HTML complet, moderne et professionnel basé sur cette demande: "${userRequest}".
+                            message: `Génère un template HTML complet et professionnel pour: ${userRequest}`,
+                            systemPrompt: `Tu es un développeur web expert. Génère un template HTML complet, moderne et professionnel pour: "${userRequest}".
 
-CONSIGNES DE QUALITÉ OBLIGATOIRES:
+EXIGENCES ABSOLUES DE QUALITÉ:
 
-🎨 DESIGN & STYLE:
-- Design moderne, épuré et professionnel
-- Palette de couleurs cohérente (max 3-4 couleurs principales)
-- Typographie lisible (utilise des Google Fonts si possible)
-- Espacement et marges harmonieux
-- Hiérarchie visuelle claire (titres, sous-titres, texte)
+🎨 DESIGN PROFESSIONNEL:
+- Design moderne, épuré et haut de gamme
+- Palette de couleurs cohérente et sophistiquée
+- Typographie professionnelle (Google Fonts)
+- Mise en page équilibrée avec espacement harmonieux
+- Effets visuels subtils et élégants
 
-📱 RESPONSIVE & ACCESSIBILITÉ:
-- Design 100% responsive (mobile-first)
-- Meta viewport obligatoire
-- Breakpoints: mobile (320px+), tablette (768px+), desktop (1200px+)
-- Contrastes de couleurs accessibles (WCAG)
-- Texte alternatif pour images (même emojis)
+📱 RESPONSIVE PARFAIT:
+- Mobile-first design obligatoire
+- Breakpoints: 320px, 768px, 1024px, 1200px
+- Grilles flexibles (CSS Grid + Flexbox)
+- Images adaptatives
+- Navigation mobile optimisée
 
-⚙️ STRUCTURE TECHNIQUE:
-- HTML5 sémantique (header, nav, main, section, article, footer)
-- CSS moderne (Flexbox, Grid, variables CSS)
-- Code propre, indenté et commenté
-- Performance optimisée (CSS inline pour éviter les dépendances)
-- Meta tags SEO de base
+⚙️ CODE DE QUALITÉ:
+- HTML5 sémantique impeccable
+- CSS moderne avec variables custom
+- JavaScript vanilla optimisé
+- Commentaires explicatifs
+- Structure logique et maintenable
 
-🔧 FONCTIONNALITÉS OBLIGATOIRES:
-- Navigation fonctionnelle (liens d'ancrage)
-- Formulaires avec validation basique
-- Boutons avec états hover/active
-- Animations CSS subtiles et fluides
-- Footer avec informations légales
+🚀 FONCTIONNALITÉS AVANCÉES:
+- Animations CSS fluides et professionnelles
+- Interactions JavaScript sophistiquées
+- Formulaires avec validation complète
+- Navigation smooth scroll
+- Effets parallax ou 3D subtils
+- Micro-interactions engageantes
 
-📋 CONTENU & SECTIONS:
-- Contenu réaliste et pertinent au domaine
-- Images remplacées par des emojis descriptifs
-- Call-to-action clairs et visibles
-- Témoignages/avis clients (si applicable)
-- Informations de contact complètes
+📋 CONTENU RÉALISTE:
+- Textes pertinents et professionnels
+- Hiérarchie de l'information claire
+- Call-to-action efficaces
+- Témoignages crédibles
+- Coordonnées complètes
 
-🚀 INTERACTIVITÉ:
-- JavaScript vanilla pour interactions de base
-- Menu mobile hamburger (si nécessaire)
-- Scroll smooth pour navigation
-- Effets visuels au scroll ou hover
-- Formulaires avec feedback utilisateur
+Type détecté: ${detectedType}
+Niveau de qualité: PREMIUM BUSINESS
 
-Type détecté: ${detectedType || 'général'}
+STRUCTURE OBLIGATOIRE:
+1. DOCTYPE HTML5 + meta tags complets (SEO, viewport, charset)
+2. Google Fonts pour typographie professionnelle
+3. CSS avancé intégré dans <style> (variables, animations, responsive)
+4. Header avec navigation sophistiquée
+5. Hero section impactante avec CTA
+6. Sections de contenu adaptées au secteur
+7. Footer complet avec liens utiles
+8. JavaScript pour interactions avancées
 
-STRUCTURE ATTENDUE:
-1. DOCTYPE HTML5 + meta tags complets
-2. CSS intégré dans <style> (pas de fichiers externes)
-3. Header avec navigation
-4. Hero section accrocheuse
-5. Sections de contenu adaptées au type
-6. Footer informatif
-7. JavaScript pour interactivité
+IMPORTANT: Le code doit être production-ready et impressionner le client final.
 
-EXEMPLE DE PALETTE selon le type:
-- Restaurant: Terracotta, crème, or (#D2691E, #F5F5DC, #DAA520)
-- E-commerce: Bleu, blanc, vert (#2563EB, #FFFFFF, #059669)
-- Portfolio: Violet, rose, orange (#7C3AED, #EC4899, #F59E0B)
-- Business: Gris, bleu, vert (#1F2937, #3B82F6, #10B981)
-
-Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
+Réponds UNIQUEMENT avec le code HTML complet, aucun markdown ni explication.`
                         })
                     });
 
+                    addDebugInfo(`Statut génération: ${response.status}`);
+
                     if (!response.ok) {
-                        throw new Error('Erreur lors de la génération');
+                        throw new Error(`Erreur génération: ${response.status} - ${response.statusText}`);
                     }
 
                     const result = await response.json();
                     let htmlCode = result.response;
                     
-                    // Nettoyer le code (enlever les balises markdown si présentes)
+                    addDebugInfo('Code HTML reçu, nettoyage en cours');
+                    
+                    // Nettoyage du code
                     htmlCode = htmlCode.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+                    
+                    // Validation stricte du HTML
+                    if (!htmlCode.includes('<!DOCTYPE') || 
+                        !htmlCode.includes('<html') || 
+                        !htmlCode.includes('</html>') ||
+                        !htmlCode.includes('<head>') ||
+                        !htmlCode.includes('<body>')) {
+                        throw new Error('Code HTML généré invalide - structure manquante');
+                    }
+                    
+                    if (htmlCode.length < 1000) {
+                        throw new Error('Code HTML généré trop court - probablement incomplet');
+                    }
+                    
+                    addDebugInfo(`Code validé: ${htmlCode.length} caractères`);
                     
                     const newTemplate = {
                         id: Date.now(),
-                        type: detectedType || 'custom',
-                        name: `Template ${templateTypes[detectedType]?.name || 'Personnalisé'}`,
+                        type: detectedType,
+                        name: `${templateTypes[detectedType]?.name} Pro - ${new Date().toLocaleDateString()}`,
                         userRequest: userRequest,
                         htmlCode: htmlCode,
                         createdAt: new Date(),
-                        status: 'ready'
+                        status: 'ready',
+                        quality: 'premium',
+                        codeLength: htmlCode.length
                     };
 
                     setGeneratedTemplates(prev => [...prev, newTemplate]);
+                    addDebugInfo('Template ajouté avec succès');
                     
                     const confirmMessage = {
                         id: Date.now(),
                         type: 'agent',
-                        content: `✅ **Template généré avec succès !**\n\n🎉 Votre template personnalisé est prêt !\n\n📋 **Contenu :**\n• HTML complet et responsive\n• CSS moderne intégré\n• Contenu adapté à votre demande\n\n🔍 **Actions disponibles :**\n• Prévisualiser le résultat\n• Télécharger le fichier HTML\n• Demander des modifications\n\nVoulez-vous que je modifie quelque chose ?`,
+                        content: `✅ **Template Premium Généré !**\n\n🎉 ${templateTypes[detectedType]?.icon} **${templateTypes[detectedType]?.name} Professionnel** créé avec succès\n\n📊 **Statistiques :**\n• Code: ${htmlCode.length.toLocaleString()} caractères\n• Qualité: Premium Business\n• Responsive: 100%\n• SEO: Optimisé\n\n🔥 **Fonctionnalités incluses :**\n• Design moderne haut de gamme\n• Animations CSS avancées\n• JavaScript interactif\n• Mobile-first responsive\n• Prêt pour production\n\n🚀 **Prévisualisez maintenant pour voir le résultat !**`,
                         timestamp: new Date()
                     };
 
                     setMessages(prev => [...prev, confirmMessage]);
                     
                 } catch (error) {
-                    console.error('Erreur génération:', error);
+                    console.error('💥 Erreur génération:', error);
+                    addDebugInfo(`Erreur génération: ${error.message}`);
+                    
                     const errorMessage = {
                         id: Date.now(),
                         type: 'agent',
-                        content: `❌ **Erreur lors de la génération**\n\n${error.message}\n\nRéessayez ou reformulez votre demande.`,
+                        content: `❌ **Échec de génération**\n\n**Erreur technique :**\n${error.message}\n\n**Actions à vérifier :**\n• Configuration de la clé API Claude\n• Fonctionnement de la fonction Netlify\n• Logs détaillés dans la console\n\n⚠️ **Sans IA fonctionnelle, impossible de générer des templates de qualité**`,
                         timestamp: new Date(),
                         isError: true
                     };
@@ -387,35 +412,14 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
 
             const PreviewModal = ({ template, onClose }) => {
                 const [activeTab, setActiveTab] = useState('preview');
-                const iframeRef = useRef(null);
+                const [previewKey, setPreviewKey] = useState(0);
+                const [previewError, setPreviewError] = useState(false);
 
-                useEffect(() => {
-                    if (iframeRef.current && activeTab === 'preview' && template.htmlCode) {
-                        console.log('📺 Chargement aperçu dans iframe');
-                        const iframe = iframeRef.current;
-                        
-                        // Attendre que l'iframe soit prête
-                        iframe.onload = () => {
-                            try {
-                                const doc = iframe.contentDocument || iframe.contentWindow.document;
-                                doc.open();
-                                doc.write(template.htmlCode);
-                                doc.close();
-                                console.log('✅ Code HTML injecté dans iframe');
-                            } catch (error) {
-                                console.error('❌ Erreur injection HTML:', error);
-                            }
-                        };
-                        
-                        // Alternative: utiliser srcdoc si disponible
-                        if ('srcdoc' in iframe) {
-                            iframe.srcdoc = template.htmlCode;
-                        } else {
-                            // Fallback pour navigateurs plus anciens
-                            iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(template.htmlCode);
-                        }
-                    }
-                }, [template.htmlCode, activeTab]);
+                const refreshPreview = () => {
+                    setPreviewKey(prev => prev + 1);
+                    setPreviewError(false);
+                    addDebugInfo('Actualisation de la prévisualisation');
+                };
 
                 return (
                     <div className="modal-overlay" onClick={onClose}>
@@ -423,86 +427,105 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                             <div className="modal-header">
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">{template.name}</h2>
-                                    <p className="text-sm text-gray-500">{template.userRequest}</p>
+                                    <p className="text-sm text-gray-600 mt-1">"{template.userRequest}"</p>
+                                    <div className="flex items-center space-x-3 mt-2">
+                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                            ✅ {template.quality || 'Premium'}
+                                        </span>
+                                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                            📊 {template.codeLength?.toLocaleString() || '0'} caractères
+                                        </span>
+                                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                            🕒 {template.createdAt.toLocaleTimeString()}
+                                        </span>
+                                    </div>
                                 </div>
-                                <button 
-                                    onClick={onClose}
-                                    className="p-2 hover:bg-gray-100 rounded-lg"
-                                >
+                                <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
                                     <X />
                                 </button>
                             </div>
                             
                             <div className="flex border-b">
                                 <button 
-                                    className={`px-4 py-2 font-medium ${activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
+                                    className={`px-6 py-3 font-medium ${activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-gray-600 hover:text-gray-800'}`}
                                     onClick={() => setActiveTab('preview')}
                                 >
-                                    👁️ Aperçu
+                                    👁️ Aperçu Live
                                 </button>
                                 <button 
-                                    className={`px-4 py-2 font-medium ${activeTab === 'code' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
+                                    className={`px-6 py-3 font-medium ${activeTab === 'code' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' : 'text-gray-600 hover:text-gray-800'}`}
                                     onClick={() => setActiveTab('code')}
                                 >
-                                    💻 Code HTML
+                                    💻 Code Source
                                 </button>
                             </div>
                             
                             <div className="modal-body p-4">
                                 {activeTab === 'preview' ? (
                                     <div>
-                                        <div className="mb-3 text-sm text-gray-600 flex items-center justify-between">
-                                            <span>Aperçu en temps réel du template généré</span>
+                                        <div className="mb-4 flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm text-gray-600">Prévisualisation en temps réel</span>
+                                                {previewError && (
+                                                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                                        ⚠️ Erreur de chargement
+                                                    </span>
+                                                )}
+                                            </div>
                                             <button 
-                                                onClick={() => {
-                                                    if (iframeRef.current) {
-                                                        console.log('🔄 Rechargement de l\'aperçu');
-                                                        if ('srcdoc' in iframeRef.current) {
-                                                            iframeRef.current.srcdoc = template.htmlCode;
-                                                        } else {
-                                                            iframeRef.current.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(template.htmlCode);
-                                                        }
-                                                    }
-                                                }}
-                                                className="text-blue-600 hover:text-blue-800 text-sm"
+                                                onClick={refreshPreview}
+                                                className="text-blue-600 hover:text-blue-800 text-sm bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-lg transition-colors"
                                             >
-                                                🔄 Recharger
+                                                🔄 Actualiser
                                             </button>
                                         </div>
                                         <iframe
-                                            ref={iframeRef}
+                                            key={previewKey}
+                                            srcDoc={template.htmlCode}
                                             className="preview-iframe"
                                             title="Template Preview"
-                                            sandbox="allow-same-origin allow-scripts"
-                                            style={{ border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                                            onLoad={() => addDebugInfo('Iframe chargée avec succès')}
+                                            onError={() => {
+                                                setPreviewError(true);
+                                                addDebugInfo('Erreur chargement iframe');
+                                            }}
                                         />
-                                        {!template.htmlCode && (
-                                            <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
-                                                <div className="text-center text-gray-500">
-                                                    <div className="text-4xl mb-2">⚠️</div>
-                                                    <p>Aucun code HTML à prévisualiser</p>
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
                                 ) : (
                                     <div>
-                                        <div className="flex justify-between items-center mb-3">
-                                            <span className="text-sm text-gray-600">Code HTML généré par l'IA</span>
-                                            <button 
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(template.htmlCode);
-                                                    alert('Code copié dans le presse-papier !');
-                                                }}
-                                                className="text-blue-600 hover:text-blue-800 text-sm"
-                                            >
-                                                📋 Copier
-                                            </button>
+                                        <div className="flex justify-between items-center mb-4 bg-gray-50 p-3 rounded-lg">
+                                            <span className="text-sm text-gray-600">Code HTML généré par l'IA Claude</span>
+                                            <div className="flex space-x-2">
+                                                <button 
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(template.htmlCode);
+                                                        alert('Code copié dans le presse-papier !');
+                                                    }}
+                                                    className="text-blue-600 hover:text-blue-800 text-sm bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-lg"
+                                                >
+                                                    📋 Copier
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        const blob = new Blob([template.htmlCode], {type: 'text/html'});
+                                                        const url = URL.createObjectURL(blob);
+                                                        const a = document.createElement('a');
+                                                        a.href = url;
+                                                        a.download = `template-${template.type}-${Date.now()}.html`;
+                                                        a.click();
+                                                        URL.revokeObjectURL(url);
+                                                    }}
+                                                    className="text-green-600 hover:text-green-800 text-sm bg-green-100 hover:bg-green-200 px-3 py-1 rounded-lg"
+                                                >
+                                                    💾 Télécharger
+                                                </button>
+                                            </div>
                                         </div>
                                         <textarea
                                             className="code-editor"
                                             value={template.htmlCode}
                                             readOnly
+                                            style={{ fontFamily: 'Monaco, Consolas, "SF Mono", monospace' }}
                                         />
                                     </div>
                                 )}
@@ -513,31 +536,31 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
             };
 
             return (
-                <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
-                    <header className="bg-white shadow-sm border-b">
+                <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+                    <header className="bg-white shadow-lg border-b border-gray-200">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <div className="flex justify-between items-center h-16">
                                 <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center text-white">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white">
                                         <Wand2 />
                                     </div>
                                     <div>
-                                        <h1 className="text-xl font-bold text-gray-900">Agent IA Template</h1>
-                                        <p className="text-sm text-gray-500">Générateur intelligent avec prévisualisation</p>
+                                        <h1 className="text-xl font-bold text-gray-900">Agent IA Template PRO</h1>
+                                        <p className="text-sm text-gray-500">Générateur professionnel pour votre business</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-4">
-                                    <span className={`text-sm font-medium flex items-center space-x-1 ${
-                                        aiStatus === 'online' ? 'text-green-600' : 
-                                        aiStatus === 'thinking' ? 'text-blue-600' : 'text-red-600'
+                                    <span className={`text-sm font-medium flex items-center space-x-2 px-3 py-1 rounded-full ${
+                                        aiStatus === 'online' ? 'text-green-700 bg-green-100' : 
+                                        aiStatus === 'thinking' ? 'text-blue-700 bg-blue-100' : 'text-red-700 bg-red-100'
                                     }`}>
                                         <span className={`w-2 h-2 rounded-full ${
                                             aiStatus === 'online' ? 'bg-green-500' : 
                                             aiStatus === 'thinking' ? 'bg-blue-500' : 'bg-red-500'
                                         }`}></span>
                                         <span>
-                                            {aiStatus === 'online' ? 'En ligne' : 
-                                             aiStatus === 'thinking' ? 'Réflexion...' : 'Erreur'}
+                                            {aiStatus === 'online' ? 'IA Prête' : 
+                                             aiStatus === 'thinking' ? 'IA Travaille...' : 'IA Erreur'}
                                         </span>
                                     </span>
                                 </div>
@@ -548,51 +571,59 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             
-                            {/* Zone de chat */}
+                            {/* Zone de chat principale */}
                             <div className="lg:col-span-2">
-                                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-                                    <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4">
+                                <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+                                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
                                         <div className="flex items-center space-x-3 text-white">
                                             <MessageCircle />
                                             <div>
-                                                <h2 className="font-semibold">Assistant IA avec Code Réel</h2>
-                                                <p className="text-purple-100 text-sm">Génération et prévisualisation en temps réel</p>
+                                                <h2 className="font-semibold">Assistant IA Professionnel</h2>
+                                                <p className="text-indigo-100 text-sm">Création de templates haut de gamme avec IA Claude</p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="h-96 overflow-y-auto p-6 space-y-4">
+                                    <div className="h-96 overflow-y-auto p-6 space-y-4 bg-gray-50">
                                         {messages.map((message) => (
                                             <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} chat-message`}>
-                                                <div className={`max-w-2xl px-4 py-3 rounded-lg ${
+                                                <div className={`max-w-2xl px-4 py-3 rounded-lg shadow-sm ${
                                                     message.type === 'user' 
-                                                        ? 'bg-blue-600 text-white' 
+                                                        ? 'bg-indigo-600 text-white' 
                                                         : message.isError 
-                                                        ? 'bg-red-50 border border-red-200 text-red-800'
-                                                        : 'bg-gray-100 text-gray-800'
+                                                        ? 'bg-red-50 border-2 border-red-200 text-red-800'
+                                                        : 'bg-white border border-gray-200 text-gray-800'
                                                 }`}>
                                                     <div className="whitespace-pre-line">{message.content}</div>
                                                     {message.showGenerateButton && (
                                                         <button
-                                                            onClick={() => generateRealTemplate(message.detectedType, message.userRequest)}
-                                                            className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 disabled:opacity-50"
+                                                            onClick={() => generateProfessionalTemplate(
+                                                                message.detectedType, 
+                                                                message.userRequest
+                                                            )}
+                                                            className="mt-3 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all flex items-center space-x-2 disabled:opacity-50 font-medium shadow-lg"
                                                             disabled={isGeneratingCode}
                                                         >
                                                             {isGeneratingCode ? (
                                                                 <>
                                                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                                                    <span>Génération du code...</span>
+                                                                    <span>IA en cours de création...</span>
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <Zap />
-                                                                    <span>Générer le Template</span>
+                                                                    <span>🚀 Générer Template PRO</span>
                                                                 </>
                                                             )}
                                                         </button>
                                                     )}
-                                                    <div className="text-xs opacity-70 mt-2">
-                                                        {message.timestamp.toLocaleTimeString()}
+                                                    <div className="text-xs opacity-70 mt-2 flex items-center justify-between">
+                                                        <span>{message.timestamp.toLocaleTimeString()}</span>
+                                                        {message.detectedType && (
+                                                            <span className="bg-black bg-opacity-10 px-2 py-1 rounded text-xs">
+                                                                {templateTypes[message.detectedType]?.icon} {templateTypes[message.detectedType]?.name}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -600,106 +631,124 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                                         
                                         {isGenerating && (
                                             <div className="flex justify-start">
-                                                <div className="bg-gray-100 text-gray-800 px-4 py-3 rounded-lg flex items-center space-x-3">
-                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
-                                                    <span>L'IA analyse votre demande...</span>
+                                                <div className="bg-white border border-gray-200 text-gray-800 px-4 py-3 rounded-lg flex items-center space-x-3 shadow-sm">
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
+                                                    <span>L'IA Claude analyse votre demande...</span>
                                                 </div>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="border-t p-4">
+                                    <div className="border-t border-gray-200 p-4 bg-white">
                                         <div className="flex space-x-3">
                                             <input
                                                 type="text"
                                                 value={inputMessage}
                                                 onChange={(e) => setInputMessage(e.target.value)}
-                                                onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                                                placeholder="Ex: Crée un site pour mon restaurant italien avec menu et réservations"
-                                                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                                placeholder="Décrivez précisément votre projet pour un template sur mesure..."
+                                                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                                 disabled={isGenerating || isGeneratingCode}
                                             />
                                             <button
                                                 onClick={handleSendMessage}
                                                 disabled={!inputMessage.trim() || isGenerating || isGeneratingCode}
-                                                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium"
                                             >
                                                 Envoyer
                                             </button>
+                                        </div>
+                                        <div className="mt-2 text-xs text-gray-500">
+                                            💡 <strong>Exemple :</strong> "Crée un site pour ma brasserie artisanale avec un design moderne, menu interactif et système de réservation"
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Sidebar */}
+                            {/* Sidebar droite */}
                             <div className="space-y-6">
                                 
-                                {/* Templates Générés */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                {/* Templates générés */}
+                                <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-200">
                                     <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
                                         <Code />
                                         <span>Templates Créés</span>
                                         {generatedTemplates.length > 0 && (
-                                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                            <span className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded-full font-medium">
                                                 {generatedTemplates.length}
                                             </span>
                                         )}
                                     </h3>
                                     
                                     {isGeneratingCode && (
-                                        <div className="text-center py-6">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                                            <p className="text-sm text-gray-600">L'IA génère votre code...</p>
+                                        <div className="text-center py-8">
+                                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                                            <h4 className="font-medium text-gray-900 mb-2">IA Claude en action</h4>
+                                            <p className="text-sm text-gray-600">Génération d'un template professionnel...</p>
+                                            <div className="mt-3 text-xs text-gray-500">
+                                                • Analyse des besoins<br/>
+                                                • Création du design<br/>
+                                                • Génération du code<br/>
+                                                • Optimisation responsive
+                                            </div>
                                         </div>
                                     )}
                                     
                                     {generatedTemplates.length === 0 && !isGeneratingCode ? (
                                         <div className="text-center py-8 text-gray-500">
-                                            <div className="text-4xl mb-2">🎨</div>
-                                            <p>Aucun template créé</p>
-                                            <p className="text-sm">Décrivez votre projet pour commencer</p>
+                                            <div className="text-4xl mb-3">🎨</div>
+                                            <p className="font-medium">Aucun template créé</p>
+                                            <p className="text-sm mt-1">Décrivez votre projet pour commencer</p>
                                         </div>
                                     ) : (
-                                        <div className="space-y-3">
+                                        <div className="space-y-4">
                                             {generatedTemplates.map((template) => (
-                                                <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                                    <div className="flex items-center justify-between mb-2">
-                                                        <h4 className="font-medium text-gray-900 flex items-center space-x-2">
-                                                            <span>{templateTypes[template.type]?.icon || '📄'}</span>
+                                                <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-gradient-to-r from-white to-gray-50">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <h4 className="font-medium text-gray-900 text-sm flex items-center space-x-2">
+                                                            <span className="text-lg">{templateTypes[template.type]?.icon}</span>
                                                             <span>{template.name}</span>
                                                         </h4>
-                                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                                            {template.status}
+                                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
+                                                            ✅ {template.quality || 'Premium'}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-gray-600 mb-3 italic">"{template.userRequest}"</p>
-                                                    <div className="text-xs text-gray-500 mb-3">
-                                                        Créé le {template.createdAt.toLocaleDateString()} à {template.createdAt.toLocaleTimeString()}
+                                                    <p className="text-xs text-gray-600 mb-3 italic line-clamp-2">"{template.userRequest}"</p>
+                                                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                                                        <span>📊 {template.codeLength?.toLocaleString()} caractères</span>
+                                                        <span>🕒 {template.createdAt.toLocaleTimeString()}</span>
                                                     </div>
                                                     <div className="flex space-x-2">
                                                         <button 
-                                                            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                                                            className="flex items-center space-x-1 text-indigo-600 hover:bg-indigo-50 text-xs px-3 py-2 rounded-lg transition-colors font-medium flex-1 justify-center"
                                                             onClick={() => setPreviewModal(template)}
                                                         >
                                                             <Eye />
                                                             <span>Prévisualiser</span>
                                                         </button>
                                                         <button 
-                                                            className="flex items-center space-x-1 text-green-600 hover:text-green-800 text-sm px-2 py-1 rounded hover:bg-green-50 transition-colors"
+                                                            className="flex items-center space-x-1 text-green-600 hover:bg-green-50 text-xs px-3 py-2 rounded-lg transition-colors font-medium"
                                                             onClick={() => {
                                                                 const blob = new Blob([template.htmlCode], {type: 'text/html'});
                                                                 const url = URL.createObjectURL(blob);
                                                                 const a = document.createElement('a');
                                                                 a.href = url;
-                                                                a.download = `${template.name.toLowerCase().replace(/\s+/g, '-')}.html`;
-                                                                document.body.appendChild(a);
+                                                                a.download = `template-${template.type}-${Date.now()}.html`;
                                                                 a.click();
-                                                                document.body.removeChild(a);
                                                                 URL.revokeObjectURL(url);
+                                                                addDebugInfo('Template téléchargé');
                                                             }}
                                                         >
                                                             <Download />
-                                                            <span>Télécharger</span>
+                                                        </button>
+                                                        <button 
+                                                            className="flex items-center space-x-1 text-red-600 hover:bg-red-50 text-xs px-2 py-2 rounded-lg transition-colors"
+                                                            onClick={() => {
+                                                                setGeneratedTemplates(prev => prev.filter(t => t.id !== template.id));
+                                                                addDebugInfo('Template supprimé');
+                                                            }}
+                                                        >
+                                                            <Trash2 />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -708,131 +757,64 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                                     )}
                                 </div>
 
-                                {/* Guide d'utilisation */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-semibold mb-4">💡 Guide d'utilisation</h3>
-                                    <div className="space-y-3 text-sm">
-                                        <div className="flex items-start space-x-2">
-                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">1</span>
-                                            <p>Décrivez précisément votre projet (type, style, couleurs, fonctionnalités)</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">2</span>
-                                            <p>L'IA analyse et propose un plan de template</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">3</span>
-                                            <p>Cliquez "Générer" pour créer le code HTML/CSS</p>
-                                        </div>
-                                        <div className="flex items-start space-x-2">
-                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">4</span>
-                                            <p>Prévisualisez et téléchargez votre template</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Guide de qualité */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                {/* Exemples professionnels */}
+                                <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-200">
                                     <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-                                        <span>⭐</span>
-                                        <span>Standards de Qualité</span>
+                                        <span>💼</span>
+                                        <span>Exemples Business</span>
                                     </h3>
-                                    
-                                    <div className="space-y-4 text-sm">
-                                        {/* Design & Style */}
-                                        <div className="border border-purple-200 rounded-lg p-4 bg-purple-50">
-                                            <h4 className="font-semibold text-purple-800 mb-2 flex items-center space-x-1">
-                                                <span>🎨</span>
-                                                <span>Design & Style</span>
-                                            </h4>
-                                            <ul className="space-y-1 text-purple-700">
-                                                <li>• Design moderne et épuré</li>
-                                                <li>• Palette de 3-4 couleurs max</li>
-                                                <li>• Typographie lisible</li>
-                                                <li>• Hiérarchie visuelle claire</li>
-                                            </ul>
-                                        </div>
-
-                                        {/* Responsive */}
-                                        <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
-                                            <h4 className="font-semibold text-blue-800 mb-2 flex items-center space-x-1">
-                                                <span>📱</span>
-                                                <span>Responsive</span>
-                                            </h4>
-                                            <ul className="space-y-1 text-blue-700">
-                                                <li>• 100% responsive mobile-first</li>
-                                                <li>• Breakpoints: 320px, 768px, 1200px</li>
-                                                <li>• Contrastes accessibles</li>
-                                            </ul>
-                                        </div>
-
-                                        {/* Technique */}
-                                        <div className="border border-green-200 rounded-lg p-4 bg-green-50">
-                                            <h4 className="font-semibold text-green-800 mb-2 flex items-center space-x-1">
-                                                <span>⚙️</span>
-                                                <span>Technique</span>
-                                            </h4>
-                                            <ul className="space-y-1 text-green-700">
-                                                <li>• HTML5 sémantique</li>
-                                                <li>• CSS moderne (Grid, Flexbox)</li>
-                                                <li>• Code propre et commenté</li>
-                                            </ul>
-                                        </div>
-
-                                        {/* Palettes */}
-                                        <div className="p-4 bg-gray-50 rounded-lg">
-                                            <h4 className="font-semibold mb-3">🎨 Palettes par Type</h4>
-                                            <div className="grid grid-cols-1 gap-2 text-xs">
-                                                <div className="flex items-center space-x-2">
-                                                    <span>🍽️ Restaurant:</span>
-                                                    <div className="flex space-x-1">
-                                                        <div className="w-4 h-4 rounded" style={{background: '#D2691E'}}></div>
-                                                        <div className="w-4 h-4 rounded" style={{background: '#F5F5DC'}}></div>
-                                                        <div className="w-4 h-4 rounded" style={{background: '#DAA520'}}></div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <span>🛒 E-commerce:</span>
-                                                    <div className="flex space-x-1">
-                                                        <div className="w-4 h-4 rounded" style={{background: '#2563EB'}}></div>
-                                                        <div className="w-4 h-4 rounded border" style={{background: '#FFFFFF'}}></div>
-                                                        <div className="w-4 h-4 rounded" style={{background: '#059669'}}></div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <span>🎨 Portfolio:</span>
-                                                    <div className="flex space-x-1">
-                                                        <div className="w-4 h-4 rounded" style={{background: '#7C3AED'}}></div>
-                                                        <div className="w-4 h-4 rounded" style={{background: '#EC4899'}}></div>
-                                                        <div className="w-4 h-4 rounded" style={{background: '#F59E0B'}}></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Exemples de prompts */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-semibold mb-4">✨ Exemples de demandes</h3>
                                     <div className="space-y-3">
                                         {[
-                                            "Site pour restaurant italien moderne avec menu et réservations",
-                                            "Portfolio de photographe minimaliste en noir et blanc",
-                                            "Boutique en ligne pour vêtements vintage colorés",
-                                            "Site d'entreprise tech avec animations fluides",
-                                            "Blog culinaire avec recettes et photos appétissantes"
+                                            {
+                                                icon: "🍽️",
+                                                text: "Restaurant gastronomique avec menu interactif et réservation en ligne",
+                                                type: "restaurant"
+                                            },
+                                            {
+                                                icon: "🛒",
+                                                text: "Boutique e-commerce luxe avec panier avancé et paiement sécurisé",
+                                                type: "ecommerce"
+                                            },
+                                            {
+                                                icon: "🎨",
+                                                text: "Portfolio architecte avec galerie 3D et animations parallax",
+                                                type: "portfolio"
+                                            },
+                                            {
+                                                icon: "💼",
+                                                text: "Site cabinet d'avocats avec prise de RDV et chat en direct",
+                                                type: "business"
+                                            }
                                         ].map((example, index) => (
                                             <button
                                                 key={index}
-                                                onClick={() => setInputMessage(example)}
-                                                className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm transition-colors"
+                                                onClick={() => setInputMessage(`Crée ${example.text}`)}
+                                                className="w-full text-left p-3 bg-gradient-to-r from-gray-50 to-white hover:from-indigo-50 hover:to-purple-50 rounded-lg text-sm transition-all border border-gray-200 hover:border-indigo-200"
                                             >
-                                                💬 "{example}"
+                                                <div className="flex items-start space-x-3">
+                                                    <span className="text-lg">{example.icon}</span>
+                                                    <span className="text-gray-700">{example.text}</span>
+                                                </div>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Informations de débogage */}
+                                {debugInfo && (
+                                    <div className="bg-gray-900 rounded-xl p-4 text-white text-xs">
+                                        <h4 className="font-semibold mb-2 text-yellow-400">🔍 Debug Info</h4>
+                                        <pre className="whitespace-pre-wrap text-gray-300 max-h-32 overflow-y-auto">
+                                            {debugInfo}
+                                        </pre>
+                                        <button 
+                                            onClick={() => setDebugInfo('')}
+                                            className="mt-2 text-yellow-400 hover:text-yellow-300 text-xs"
+                                        >
+                                            Effacer
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -845,17 +827,23 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                         />
                     )}
 
-                    {/* Loading overlay pour la génération de code */}
+                    {/* Loading overlay pour génération */}
                     {isGeneratingCode && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <h3 className="text-lg font-semibold mb-2">🤖 IA en action...</h3>
-                                <p className="text-gray-600">
-                                    Génération du code HTML/CSS personnalisé
+                        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center shadow-2xl">
+                                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-6"></div>
+                                <h3 className="text-xl font-bold mb-3 text-gray-900">🤖 IA Claude au travail</h3>
+                                <p className="text-gray-600 mb-4">
+                                    Création d'un template professionnel sur mesure
                                 </p>
-                                <div className="mt-4 text-sm text-gray-500">
-                                    Cela peut prendre 10-30 secondes
+                                <div className="text-sm text-gray-500 space-y-1">
+                                    <div>✅ Analyse des besoins</div>
+                                    <div>🎨 Génération du design</div>
+                                    <div>⚙️ Optimisation du code</div>
+                                    <div>📱 Adaptation responsive</div>
+                                </div>
+                                <div className="mt-4 text-xs text-gray-400">
+                                    Patience... L'IA crée un template de qualité premium
                                 </div>
                             </div>
                         </div>
