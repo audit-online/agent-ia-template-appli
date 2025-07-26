@@ -272,19 +272,68 @@ Si l'utilisateur demande la création/génération d'un template, termine ta ré
                         },
                         body: JSON.stringify({
                             message: `Génère un template HTML complet pour: ${userRequest}`,
-                            systemPrompt: `Tu es un développeur web expert. Génère un template HTML complet, moderne et responsive basé sur cette demande: "${userRequest}".
+                            systemPrompt: `Tu es un développeur web expert et designer UX/UI. Génère un template HTML complet, moderne et professionnel basé sur cette demande: "${userRequest}".
 
-INSTRUCTIONS IMPORTANTES:
-1. Crée un fichier HTML complet avec CSS intégré dans <style>
-2. Utilise un design moderne et professionnel
-3. Rends-le responsive (mobile-friendly)
-4. Ajoute des couleurs et styles appropriés au type de site
-5. Inclus du contenu réaliste et pertinent
-6. Ajoute des interactions JavaScript simples si nécessaire
-7. Utilise des emojis pour les images/icônes
-8. Assure-toi que le code est propre et bien commenté
+CONSIGNES DE QUALITÉ OBLIGATOIRES:
+
+🎨 DESIGN & STYLE:
+- Design moderne, épuré et professionnel
+- Palette de couleurs cohérente (max 3-4 couleurs principales)
+- Typographie lisible (utilise des Google Fonts si possible)
+- Espacement et marges harmonieux
+- Hiérarchie visuelle claire (titres, sous-titres, texte)
+
+📱 RESPONSIVE & ACCESSIBILITÉ:
+- Design 100% responsive (mobile-first)
+- Meta viewport obligatoire
+- Breakpoints: mobile (320px+), tablette (768px+), desktop (1200px+)
+- Contrastes de couleurs accessibles (WCAG)
+- Texte alternatif pour images (même emojis)
+
+⚙️ STRUCTURE TECHNIQUE:
+- HTML5 sémantique (header, nav, main, section, article, footer)
+- CSS moderne (Flexbox, Grid, variables CSS)
+- Code propre, indenté et commenté
+- Performance optimisée (CSS inline pour éviter les dépendances)
+- Meta tags SEO de base
+
+🔧 FONCTIONNALITÉS OBLIGATOIRES:
+- Navigation fonctionnelle (liens d'ancrage)
+- Formulaires avec validation basique
+- Boutons avec états hover/active
+- Animations CSS subtiles et fluides
+- Footer avec informations légales
+
+📋 CONTENU & SECTIONS:
+- Contenu réaliste et pertinent au domaine
+- Images remplacées par des emojis descriptifs
+- Call-to-action clairs et visibles
+- Témoignages/avis clients (si applicable)
+- Informations de contact complètes
+
+🚀 INTERACTIVITÉ:
+- JavaScript vanilla pour interactions de base
+- Menu mobile hamburger (si nécessaire)
+- Scroll smooth pour navigation
+- Effets visuels au scroll ou hover
+- Formulaires avec feedback utilisateur
 
 Type détecté: ${detectedType || 'général'}
+
+STRUCTURE ATTENDUE:
+1. DOCTYPE HTML5 + meta tags complets
+2. CSS intégré dans <style> (pas de fichiers externes)
+3. Header avec navigation
+4. Hero section accrocheuse
+5. Sections de contenu adaptées au type
+6. Footer informatif
+7. JavaScript pour interactivité
+
+EXEMPLE DE PALETTE selon le type:
+- Restaurant: Terracotta, crème, or (#D2691E, #F5F5DC, #DAA520)
+- E-commerce: Bleu, blanc, vert (#2563EB, #FFFFFF, #059669)
+- Portfolio: Violet, rose, orange (#7C3AED, #EC4899, #F59E0B)
+- Business: Gris, bleu, vert (#1F2937, #3B82F6, #10B981)
 
 Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                         })
@@ -341,12 +390,30 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                 const iframeRef = useRef(null);
 
                 useEffect(() => {
-                    if (iframeRef.current && activeTab === 'preview') {
+                    if (iframeRef.current && activeTab === 'preview' && template.htmlCode) {
+                        console.log('📺 Chargement aperçu dans iframe');
                         const iframe = iframeRef.current;
-                        const doc = iframe.contentDocument || iframe.contentWindow.document;
-                        doc.open();
-                        doc.write(template.htmlCode);
-                        doc.close();
+                        
+                        // Attendre que l'iframe soit prête
+                        iframe.onload = () => {
+                            try {
+                                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                                doc.open();
+                                doc.write(template.htmlCode);
+                                doc.close();
+                                console.log('✅ Code HTML injecté dans iframe');
+                            } catch (error) {
+                                console.error('❌ Erreur injection HTML:', error);
+                            }
+                        };
+                        
+                        // Alternative: utiliser srcdoc si disponible
+                        if ('srcdoc' in iframe) {
+                            iframe.srcdoc = template.htmlCode;
+                        } else {
+                            // Fallback pour navigateurs plus anciens
+                            iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(template.htmlCode);
+                        }
                     }
                 }, [template.htmlCode, activeTab]);
 
@@ -383,12 +450,41 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                             
                             <div className="modal-body p-4">
                                 {activeTab === 'preview' ? (
-                                    <iframe
-                                        ref={iframeRef}
-                                        className="preview-iframe"
-                                        title="Template Preview"
-                                        sandbox="allow-same-origin allow-scripts"
-                                    />
+                                    <div>
+                                        <div className="mb-3 text-sm text-gray-600 flex items-center justify-between">
+                                            <span>Aperçu en temps réel du template généré</span>
+                                            <button 
+                                                onClick={() => {
+                                                    if (iframeRef.current) {
+                                                        console.log('🔄 Rechargement de l\'aperçu');
+                                                        if ('srcdoc' in iframeRef.current) {
+                                                            iframeRef.current.srcdoc = template.htmlCode;
+                                                        } else {
+                                                            iframeRef.current.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(template.htmlCode);
+                                                        }
+                                                    }
+                                                }}
+                                                className="text-blue-600 hover:text-blue-800 text-sm"
+                                            >
+                                                🔄 Recharger
+                                            </button>
+                                        </div>
+                                        <iframe
+                                            ref={iframeRef}
+                                            className="preview-iframe"
+                                            title="Template Preview"
+                                            sandbox="allow-same-origin allow-scripts"
+                                            style={{ border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                                        />
+                                        {!template.htmlCode && (
+                                            <div className="flex items-center justify-center h-96 bg-gray-50 rounded-lg">
+                                                <div className="text-center text-gray-500">
+                                                    <div className="text-4xl mb-2">⚠️</div>
+                                                    <p>Aucun code HTML à prévisualiser</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 ) : (
                                     <div>
                                         <div className="flex justify-between items-center mb-3">
@@ -631,6 +727,87 @@ Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
                                         <div className="flex items-start space-x-2">
                                             <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">4</span>
                                             <p>Prévisualisez et téléchargez votre template</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Guide de qualité */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
+                                        <span>⭐</span>
+                                        <span>Standards de Qualité</span>
+                                    </h3>
+                                    
+                                    <div className="space-y-4 text-sm">
+                                        {/* Design & Style */}
+                                        <div className="border border-purple-200 rounded-lg p-4 bg-purple-50">
+                                            <h4 className="font-semibold text-purple-800 mb-2 flex items-center space-x-1">
+                                                <span>🎨</span>
+                                                <span>Design & Style</span>
+                                            </h4>
+                                            <ul className="space-y-1 text-purple-700">
+                                                <li>• Design moderne et épuré</li>
+                                                <li>• Palette de 3-4 couleurs max</li>
+                                                <li>• Typographie lisible</li>
+                                                <li>• Hiérarchie visuelle claire</li>
+                                            </ul>
+                                        </div>
+
+                                        {/* Responsive */}
+                                        <div className="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                                            <h4 className="font-semibold text-blue-800 mb-2 flex items-center space-x-1">
+                                                <span>📱</span>
+                                                <span>Responsive</span>
+                                            </h4>
+                                            <ul className="space-y-1 text-blue-700">
+                                                <li>• 100% responsive mobile-first</li>
+                                                <li>• Breakpoints: 320px, 768px, 1200px</li>
+                                                <li>• Contrastes accessibles</li>
+                                            </ul>
+                                        </div>
+
+                                        {/* Technique */}
+                                        <div className="border border-green-200 rounded-lg p-4 bg-green-50">
+                                            <h4 className="font-semibold text-green-800 mb-2 flex items-center space-x-1">
+                                                <span>⚙️</span>
+                                                <span>Technique</span>
+                                            </h4>
+                                            <ul className="space-y-1 text-green-700">
+                                                <li>• HTML5 sémantique</li>
+                                                <li>• CSS moderne (Grid, Flexbox)</li>
+                                                <li>• Code propre et commenté</li>
+                                            </ul>
+                                        </div>
+
+                                        {/* Palettes */}
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <h4 className="font-semibold mb-3">🎨 Palettes par Type</h4>
+                                            <div className="grid grid-cols-1 gap-2 text-xs">
+                                                <div className="flex items-center space-x-2">
+                                                    <span>🍽️ Restaurant:</span>
+                                                    <div className="flex space-x-1">
+                                                        <div className="w-4 h-4 rounded" style={{background: '#D2691E'}}></div>
+                                                        <div className="w-4 h-4 rounded" style={{background: '#F5F5DC'}}></div>
+                                                        <div className="w-4 h-4 rounded" style={{background: '#DAA520'}}></div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span>🛒 E-commerce:</span>
+                                                    <div className="flex space-x-1">
+                                                        <div className="w-4 h-4 rounded" style={{background: '#2563EB'}}></div>
+                                                        <div className="w-4 h-4 rounded border" style={{background: '#FFFFFF'}}></div>
+                                                        <div className="w-4 h-4 rounded" style={{background: '#059669'}}></div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span>🎨 Portfolio:</span>
+                                                    <div className="flex space-x-1">
+                                                        <div className="w-4 h-4 rounded" style={{background: '#7C3AED'}}></div>
+                                                        <div className="w-4 h-4 rounded" style={{background: '#EC4899'}}></div>
+                                                        <div className="w-4 h-4 rounded" style={{background: '#F59E0B'}}></div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
