@@ -96,6 +96,10 @@
 
       useEffect(() => {
         testAPI();
+        
+        // Test de la fonction d'ouverture d'onglet
+        console.log('🧪 Test fonction ouverture onglet...');
+        
         setMessages([{
           id: 1,
           type: 'agent',
@@ -124,20 +128,45 @@
       };
 
       const openTemplate = (template) => {
-        const blob = new Blob([template.htmlCode], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        try {
+          console.log('🚀 Ouverture template:', template.name);
+          const blob = new Blob([template.htmlCode], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const newWindow = window.open(url, '_blank');
+          
+          if (newWindow) {
+            console.log('✅ Onglet ouvert avec succès');
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+          } else {
+            console.error('❌ Popup bloqué');
+            // Fallback: télécharger si popup bloqué
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template-${template.id}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+        } catch (error) {
+          console.error('❌ Erreur ouverture:', error);
+        }
       };
 
       const downloadTemplate = (template) => {
-        const blob = new Blob([template.htmlCode], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `template-${template.id}.html`;
-        a.click();
-        URL.revokeObjectURL(url);
+        try {
+          console.log('💾 Téléchargement template:', template.name);
+          const blob = new Blob([template.htmlCode], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `template-${template.id}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          console.log('✅ Téléchargement lancé');
+        } catch (error) {
+          console.error('❌ Erreur téléchargement:', error);
+        }
       };
 
       const detectType = (input) => {
@@ -270,7 +299,10 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
                 content: '✅ Template modifié avec succès ! Les changements ont été appliqués.' 
               }]);
               
-              setTimeout(() => openTemplate(modifiedTemplate), 500);
+              setTimeout(() => {
+                console.log('⏰ Ouverture automatique template modifié...');
+                openTemplate(modifiedTemplate);
+              }, 1000);
             } else {
               // Nouveau template
               const template = createTemplate(messageContent, html, 'ai-expert');
@@ -280,7 +312,10 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
                 content: '✅ Template créé ! Il va s\'ouvrir automatiquement.' 
               }]);
               
-              setTimeout(() => openTemplate(template), 500);
+              setTimeout(() => {
+                console.log('⏰ Ouverture automatique nouveau template...');
+                openTemplate(template);
+              }, 1000);
             }
           } else {
             // Réponse normale
@@ -376,14 +411,29 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
                 React.createElement('div', { className: 'actions' },
                   React.createElement('button', { 
                     className: 'btn-sm btn-outline', 
-                    onClick: () => openTemplate(currentTemplate)
+                    onClick: () => {
+                      console.log('🖱️ Clic bouton Voir - Template:', currentTemplate.name);
+                      openTemplate(currentTemplate);
+                    }
                   }, '🚀 Voir'),
                   React.createElement('button', { 
                     className: 'btn-sm btn-outline', 
                     onClick: () => downloadTemplate(currentTemplate)
                   }, '💾 DL')
                 )
-              )
+              ),
+              
+              // Bouton de test si pas de template
+              !currentTemplate && React.createElement('button', {
+                className: 'btn-sm',
+                style: { background: '#f59e0b', color: '#fff', width: '100%', marginTop: '10px' },
+                onClick: () => {
+                  const testHTML = '<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Test Template</h1><p>Si vous voyez ceci, l\'ouverture d\'onglet fonctionne !</p></body></html>';
+                  const testTemplate = { id: 'test', name: 'Test', htmlCode: testHTML };
+                  console.log('🧪 Test ouverture onglet...');
+                  openTemplate(testTemplate);
+                }
+              }, '🧪 Tester ouverture onglet')
             ),
             
             React.createElement('div', { className: 'templates-list' },
