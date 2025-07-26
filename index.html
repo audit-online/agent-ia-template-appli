@@ -111,14 +111,90 @@
         }
       };
 
-      /* –––––  envoi message ––––– */
-      const handleSendMessage = async () => {
-        if (!inputMessage.trim()) return;
-        const userMessage = { id: Date.now(), type: 'user', content: inputMessage };
-        setMessages(prev => [...prev, userMessage]);
-        setInputMessage('');
-        apiStatus === 'working' ? await generateWithAI(inputMessage) : generateTestTemplate(inputMessage);
-      };
+           /* –––––  envoi message AMÉLIORÉ ––––– */
+const handleSendMessage = async () => {
+  if (!inputMessage.trim()) return;
+  const userMessage = { id: Date.now(), type: 'user', content: inputMessage };
+  setMessages(prev => [...prev, userMessage]);
+  const messageContent = inputMessage;
+  setInputMessage('');
+
+  // Détecter si c'est une modification du template actuel
+  if (currentTemplate && isModificationRequest(messageContent)) {
+    await modifyCurrentTemplate(messageContent);
+  } else {
+    // Créer un nouveau template
+    apiStatus === 'working' ? await generateWithAI(messageContent) : generateTestTemplate(messageContent);
+  }
+};
+
+/* –––––  NOUVEAU : détection des demandes de modification ––––– */
+const isModificationRequest = (message) => {
+  const modificationKeywords = [
+    'change', 'modifie', 'modifier', 'remplace', 'couleur', 'color', 'photo', 'image', 
+    'texte', 'titre', 'ajoute', 'supprime', 'enlève', 'mettre', 'plus', 'moins',
+    'rouge', 'bleu', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'violet',
+    'plus grand', 'plus petit', 'centrer', 'gauche', 'droite', 'menu', 'bouton',
+    'font', 'police', 'taille', 'animation', 'effet', 'améliore', 'corrige'
+  ];
+  
+  const lowerMessage = message.toLowerCase();
+  return modificationKeywords.some(keyword => lowerMessage.includes(keyword));
+};
+
+/* –––––  NOUVEAU : modification du template actuel ––––– */
+const modifyCurrentTemplate = async (userInput) => {
+  setIsGenerating(true);
+  
+  try {
+    const res = await fetch('/.netlify/functions/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: userInput,
+        systemPrompt: 'Tu es un assistant IA spécialisé dans la modification de templates HTML. CONTEXTE : L utilisateur a déjà un template HTML et souhaite le modifier. TEMPLATE ACTUEL : ' + currentTemplate.htmlCode + ' DEMANDE DE MODIFICATION : ' + userInput + ' INSTRUCTIONS : 1. Analyse le template HTML existant 2. Applique EXACTEMENT la modification demandée par l utilisateur 3. Conserve toute la structure et le design existant 4. Ne modifie que ce qui est explicitement demandé 5. Retourne le HTML complet modifié (DOCTYPE → </html>) 6. Assure-toi que le HTML reste valide et fonctionnel IMPORTANT : Réponds UNIQUEMENT avec le code HTML complet modifié, pas d explications.'
+      })
+    });
+
+    if (!res.ok) throw new Error('Erreur IA');
+    
+    let modifiedHtml = (await res.json()).response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+
+    if (!modifiedHtml.includes('</html>')) modifiedHtml += '</body></html>';
+    if (!modifiedHtml.includes('<!DOCTYPE')) {
+      modifiedHtml = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template Modifié</title></head><body>' + modifiedHtml + '</body></html>';
+    }
+
+    // Créer une nouvelle version du template
+    const modifiedTemplate = {
+      ...currentTemplate,
+      id: Date.now(),
+      name: currentTemplate.name + ' (modifié)',
+      htmlCode: modifiedHtml,
+      source: 'ai-modified',
+      parentId: currentTemplate.id
+    };
+
+    setTemplates(prev => [modifiedTemplate, ...prev]);
+    setCurrentTemplate(modifiedTemplate);
+    
+    setMessages(prev => [...prev, { 
+      id: Date.now(), 
+      type: 'agent', 
+      content: 'Template modifié avec succès ! Les changements ont été appliqués. Vous pouvez continuer à demander des modifications ou créer un nouveau template.' 
+    }]);
+
+  } catch (error) {
+    console.error('Erreur modification:', error);
+    setMessages(prev => [...prev, { 
+      id: Date.now(), 
+      type: 'agent', 
+      content: 'Erreur lors de la modification. Pouvez-vous reformuler votre demande ? Par exemple : "Change la couleur en bleu", "Ajoute une section contact", "Modifie le titre principal"' 
+    }]);
+  } finally {
+    setIsGenerating(false);
+  }
+};
 
       /* –––––  génération IA ultra-exigeante ––––– */
       const generateWithAI = async (userInput) => {
@@ -243,7 +319,7 @@ End with </html>, no markdown fences.
                       value: inputMessage,
                       onChange: e => setInputMessage(e.target.value),
                       onKeyPress: handleKeyPress,
-                      placeholder: 'Décrivez votre projet...',
+                      placeholder: currentTemplate ? 'Modifiez le template (ex: "change la couleur en bleu", "ajoute des photos")...' : 'Décrivez votre projet...',
                       disabled: isGenerating
                     })
                   ),
@@ -251,7 +327,7 @@ End with </html>, no markdown fences.
                     onClick: handleSendMessage,
                     disabled: !inputMessage.trim() || isGenerating,
                     className: 'btn btn-primary'
-                  }, 'Générer')
+                 }, currentTemplate ? 'Modifier' : 'Générer')
                 )
               )
             ),
