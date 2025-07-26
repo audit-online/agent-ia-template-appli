@@ -1,4 +1,4 @@
-// netlify/functions/ai-chat.js - Version avec plus de tokens
+// netlify/functions/ai-chat.js - Version avec plus de tokens et mémoire complète
 exports.handler = async (event, context) => {
   console.log('🚀 Fonction ai-chat appelée');
 
@@ -44,7 +44,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const { message, systemPrompt } = JSON.parse(event.body || '{}');
+    const { message, systemPrompt, conversationHistory, context } = JSON.parse(event.body || '{}');
     
     if (!message) {
       return {
@@ -78,9 +78,15 @@ exports.handler = async (event, context) => {
           },
           body: JSON.stringify({
             model: model,
-            max_tokens: 8000,  // ← DOUBLÉ pour permettre des templates complets
-            temperature: 0.7,  // ← Ajouté pour plus de créativité
-            messages: [
+            max_tokens: 8000,
+            temperature: 0.8,
+            messages: conversationHistory && conversationHistory.length > 0 ? [
+              {
+                role: 'system',
+                content: systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'
+              },
+              ...conversationHistory
+            ] : [
               {
                 role: 'user',
                 content: `${systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'}\n\nMessage utilisateur: ${message}`
@@ -107,7 +113,8 @@ exports.handler = async (event, context) => {
               source: 'claude-api',
               modelUsed: model,
               responseLength: aiResponse.length,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
+              conversationContext: context || null
             })
           };
         } else {

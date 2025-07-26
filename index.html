@@ -67,6 +67,7 @@
     .device.tablet{width:400px;aspect-ratio:4/3}
     .device.mobile{width:280px;aspect-ratio:9/16}
     .device iframe{width:100%;height:100%;border:none;border-radius:15px;background:#fff}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
     @media(max-width:1024px){.sidebar{width:350px}}
     @media(max-width:768px){.app-container{flex-direction:column}.sidebar{width:100%;height:50vh}}
   </style>
@@ -90,11 +91,11 @@
       /* –––––  démarrage ––––– */
       useEffect(() => {
         testAPI();
-       setMessages([{
-  id: 1,
-  type: 'agent',
-  content: 'Bonjour ! Je suis votre assistant IA pour la creation de sites web.\n\nJe peux vous aider a:\n- Discuter des besoins de vos clients\n- Vous conseiller sur les meilleures solutions\n- Creer des templates sur mesure\n- Modifier et ameliorer vos projets\n\nComment puis-je vous aider aujourd hui ?'
-}]);
+        setMessages([{
+          id: 1,
+          type: 'agent',
+          content: 'Bonjour ! Je suis Claude, votre expert en création de sites web.\n\nAvec 15 ans d\'expérience dans le domaine, je peux vous accompagner pour :\n\n• Analyser les besoins précis de vos clients\n• Recommander les meilleures solutions techniques\n• Créer des templates sur-mesure optimisés\n• Vous conseiller sur les tendances actuelles\n\nParlez-moi de votre projet - quel type de client accompagnez-vous aujourd\'hui ?'
+        }]);
       }, []);
 
       /* –––––  test API ––––– */
@@ -111,189 +112,164 @@
         }
       };
 
-      /* –––––  NOUVEAU : chat conversationnel ––––– */
-const handleConversation = async (userInput) => {
-  setIsGenerating(true);
-  try {
-    const res = await fetch('/.netlify/functions/ai-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: userInput,
-        systemPrompt: 'Tu es un assistant IA spécialisé dans la création de sites web. Tu peux discuter de tout ce qui concerne le web design, donner des conseils, expliquer des concepts, et bien sûr créer des templates. Réponds de manière conversationnelle et amicale. Si l utilisateur veut créer un template, dis-lui clairement qu il doit utiliser des mots comme "crée", "génère", "template", "site pour".'
-      })
-    });
-    
-    if (!res.ok) throw new Error('Erreur IA');
-    const data = await res.json();
-    
-    setMessages(prev => [...prev, { 
-      id: Date.now(), 
-      type: 'agent', 
-      content: data.response 
-    }]);
-    
-  } catch (error) {
-    setMessages(prev => [...prev, { 
-      id: Date.now(), 
-      type: 'agent', 
-      content: 'Désolé, je rencontre un problème technique. Pouvez-vous reformuler votre question ?' 
-    }]);
-  } finally {
-    setIsGenerating(false);
-  }
-};
+      // Analyser le sentiment/contexte utilisateur
+      const analyzeSentiment = (message) => {
+        const positive = ['oui', 'parfait', 'excellent', 'super', 'génial', 'j aime'];
+        const negative = ['non', 'pas', 'problème', 'difficile', 'compliqué'];
+        const urgent = ['rapide', 'vite', 'urgent', 'maintenant', 'aujourd hui'];
+        
+        const lower = message.toLowerCase();
+        return {
+          isPositive: positive.some(word => lower.includes(word)),
+          isNegative: negative.some(word => lower.includes(word)),
+          isUrgent: urgent.some(word => lower.includes(word))
+        };
+      };
 
-/* –––––  NOUVEAU : détection du type de demande ––––– */
-const detectRequestType = (message) => {
-  const templateKeywords = ['crée', 'créer', 'génère', 'générer', 'template', 'site pour', 'site web', 'page pour', 'faire un site'];
-  const modifyKeywords = ['change', 'modifie', 'modifier', 'remplace', 'couleur', 'ajoute', 'supprime'];
-  
-  const lowerMessage = message.toLowerCase();
-  
-  if (currentTemplate && modifyKeywords.some(keyword => lowerMessage.includes(keyword))) {
-    return 'modify';
-  }
-  
-  if (templateKeywords.some(keyword => lowerMessage.includes(keyword))) {
-    return 'template';
-  }
-  
-  return 'conversation';
-};
+      // Detecter le niveau d'expertise du client
+      const detectClientLevel = (conversationHistory) => {
+        const techTerms = ['responsive', 'seo', 'ux', 'ui', 'cms', 'api', 'ssl'];
+        const basicTerms = ['simple', 'facile', 'basique', 'je ne sais pas'];
+        
+        const allText = conversationHistory.map(msg => msg.content).join(' ').toLowerCase();
+        const techScore = techTerms.reduce((score, term) => allText.includes(term) ? score + 1 : score, 0);
+        const basicScore = basicTerms.reduce((score, term) => allText.includes(term) ? score + 1 : score, 0);
+        
+        if (techScore > basicScore) return 'expert';
+        if (basicScore > techScore) return 'débutant';
+        return 'intermédiaire';
+      };
 
-  /* –––––  envoi message INTELLIGENT ––––– */
-const handleSendMessage = async () => {
-  if (!inputMessage.trim()) return;
-  const userMessage = { id: Date.now(), type: 'user', content: inputMessage };
-  setMessages(prev => [...prev, userMessage]);
-  const messageContent = inputMessage;
-  setInputMessage('');
+      /* –––––  envoi message INTELLIGENT ––––– */
+      const handleSendMessage = async () => {
+        if (!inputMessage.trim()) return;
+        const userMessage = { id: Date.now(), type: 'user', content: inputMessage };
+        setMessages(prev => [...prev, userMessage]);
+        const messageContent = inputMessage;
+        setInputMessage('');
 
-  if (apiStatus !== 'working') {
-    setMessages(prev => [...prev, { 
-      id: Date.now(), 
-      type: 'agent', 
-      content: 'API non disponible. Activez l API pour discuter avec l IA.' 
-    }]);
-    return;
-  }
+        if (apiStatus !== 'working') {
+          setMessages(prev => [...prev, { 
+            id: Date.now(), 
+            type: 'agent', 
+            content: 'API non disponible. Activez l\'API pour discuter avec l\'IA.' 
+          }]);
+          return;
+        }
 
-  setIsGenerating(true);
-  try {
-    const res = await fetch('/.netlify/functions/ai-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: messageContent,
-        context: currentTemplate ? 'Template actuel: ' + currentTemplate.name : 'Aucun template selectionne',
-        systemPrompt: 'Tu es un assistant commercial IA specialise dans la creation de sites web. Tu dois aider les commerciaux a assister leurs clients de maniere naturelle et conversationnelle. REGLES: 1) Reponds toujours de maniere humaine et naturelle comme dans une vraie conversation 2) Pose des questions pour mieux comprendre les besoins 3) Donne des conseils professionnels 4) Si le client veut un template, demande des precisions avant de le creer 5) Sois proactif et suggestif 6) IMPORTANT: Ne cree un template QUE si on te le demande explicitement avec "cree le template" ou "genere le site". Sinon, contente-toi de discuter et conseiller.'
-      })
-    });
-    
-    if (!res.ok) throw new Error('Erreur IA');
-    const data = await res.json();
-    
-    // Si la reponse contient du HTML, c'est un template
-    if (data.response.includes('<!DOCTYPE') || data.response.includes('<html')) {
-      let html = data.response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
-      if (!html.includes('</html>')) html += '</body></html>';
-      const template = createTemplate(messageContent, html, 'ai');
-      setCurrentTemplate(template);
-      
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        type: 'agent', 
-        content: 'Perfect ! J ai cree le template selon vos specifications. Vous pouvez le voir dans la previsualisation. Voulez-vous des modifications ?' 
-      }]);
-    } else {
-      // Reponse conversationnelle normale
-      setMessages(prev => [...prev, { 
-        id: Date.now(), 
-        type: 'agent', 
-        content: data.response 
-      }]);
-    }
-    
-  } catch (error) {
-    setMessages(prev => [...prev, { 
-      id: Date.now(), 
-      type: 'agent', 
-      content: 'Desole, j ai un petit probleme technique. Pouvez-vous reformuler votre demande ?' 
-    }]);
-  } finally {
-    setIsGenerating(false);
-  }
-};
+        setIsGenerating(true);
+        try {
+          const conversationHistory = messages.map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          }));
+          
+          conversationHistory.push({
+            role: 'user',
+            content: messageContent
+          });
 
+          const contextInfo = {
+            hasTemplate: !!currentTemplate,
+            templateInfo: currentTemplate ? {
+              name: currentTemplate.name,
+              type: detectType(currentTemplate.userInput),
+              source: currentTemplate.source
+            } : null,
+            conversationLength: conversationHistory.length,
+            userSentiment: analyzeSentiment(messageContent),
+            clientLevel: detectClientLevel(conversationHistory)
+          };
 
-/* –––––  NOUVEAU : détection des demandes de modification ––––– */
-const isModificationRequest = (message) => {
-  const modificationKeywords = [
-    'change', 'modifie', 'modifier', 'remplace', 'couleur', 'color', 'photo', 'image', 
-    'texte', 'titre', 'ajoute', 'supprime', 'enlève', 'mettre', 'plus', 'moins',
-    'rouge', 'bleu', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'violet',
-    'plus grand', 'plus petit', 'centrer', 'gauche', 'droite', 'menu', 'bouton',
-    'font', 'police', 'taille', 'animation', 'effet', 'améliore', 'corrige'
-  ];
-  
-  const lowerMessage = message.toLowerCase();
-  return modificationKeywords.some(keyword => lowerMessage.includes(keyword));
-};
+          const res = await fetch('/.netlify/functions/ai-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: messageContent,
+              conversationHistory: conversationHistory,
+              context: contextInfo,
+              systemPrompt: `Tu es Claude, un expert senior en création de sites web avec 15 ans d'expérience. Tu assistes des commerciaux pour conseiller leurs clients de manière experte et naturelle.
 
-/* –––––  NOUVEAU : modification du template actuel ––––– */
-const modifyCurrentTemplate = async (userInput) => {
-  setIsGenerating(true);
-  
-  try {
-    const res = await fetch('/.netlify/functions/ai-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: userInput,
-        systemPrompt: 'Tu es un assistant IA spécialisé dans la modification de templates HTML. CONTEXTE : L utilisateur a déjà un template HTML et souhaite le modifier. TEMPLATE ACTUEL : ' + currentTemplate.htmlCode + ' DEMANDE DE MODIFICATION : ' + userInput + ' INSTRUCTIONS : 1. Analyse le template HTML existant 2. Applique EXACTEMENT la modification demandée par l utilisateur 3. Conserve toute la structure et le design existant 4. Ne modifie que ce qui est explicitement demandé 5. Retourne le HTML complet modifié (DOCTYPE → </html>) 6. Assure-toi que le HTML reste valide et fonctionnel IMPORTANT : Réponds UNIQUEMENT avec le code HTML complet modifié, pas d explications.'
-      })
-    });
+PERSONNALITÉ ET STYLE:
+- Parle comme un vrai expert: confiant, précis, avec du vocabulaire technique approprié
+- Sois chaleureux mais professionnel, comme un consultant senior
+- Utilise des expressions naturelles: "Excellente question", "Je recommande vivement", "Dans mon expérience"
+- Donne des conseils précis et actionnables
+- Montre ton expertise avec des détails techniques pertinents
 
-    if (!res.ok) throw new Error('Erreur IA');
-    
-    let modifiedHtml = (await res.json()).response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+MÉMOIRE ET COHÉRENCE:
+- Tu as accès à TOUT l'historique de conversation précédent
+- Fais référence aux éléments mentionnés précédemment de manière naturelle
+- Construis sur les réponses précédentes pour approfondir
+- Adapte tes conseils en fonction du profil client qui émerge
 
-    if (!modifiedHtml.includes('</html>')) modifiedHtml += '</body></html>';
-    if (!modifiedHtml.includes('<!DOCTYPE')) {
-      modifiedHtml = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template Modifié</title></head><body>' + modifiedHtml + '</body></html>';
-    }
+LOGIQUE DE RÉPONSE:
+1. Si c'est le début: pose 2-3 questions pertinentes pour bien cerner le projet
+2. Si discussion en cours: approfondit, donne des conseils experts, suggère des solutions
+3. Si demande de template explicite: crée-le en tenant compte de TOUT le contexte
+4. Si modification: applique intelligemment en gardant la cohérence
 
-    // Créer une nouvelle version du template
-    const modifiedTemplate = {
-      ...currentTemplate,
-      id: Date.now(),
-      name: currentTemplate.name + ' (modifié)',
-      htmlCode: modifiedHtml,
-      source: 'ai-modified',
-      parentId: currentTemplate.id
-    };
+EXPERTISE TECHNIQUE:
+- Recommande les meilleures pratiques UX/UI actuelles
+- Suggère des fonctionnalités pertinentes selon le secteur
+- Donne des conseils sur les performances, SEO, accessibilité
+- Propose des alternatives et optimisations
 
-    setTemplates(prev => [modifiedTemplate, ...prev]);
-    setCurrentTemplate(modifiedTemplate);
-    
-    setMessages(prev => [...prev, { 
-      id: Date.now(), 
-      type: 'agent', 
-      content: 'Template modifié avec succès ! Les changements ont été appliqués. Vous pouvez continuer à demander des modifications ou créer un nouveau template.' 
-    }]);
+GESTION CLIENT:
+- Détecte les besoins non exprimés
+- Propose proactivement des améliorations
+- Explique le "pourquoi" derrière tes recommandations
+- Anticipe les questions et objections
 
-  } catch (error) {
-    console.error('Erreur modification:', error);
-    setMessages(prev => [...prev, { 
-      id: Date.now(), 
-      type: 'agent', 
-      content: 'Erreur lors de la modification. Pouvez-vous reformuler votre demande ? Par exemple : "Change la couleur en bleu", "Ajoute une section contact", "Modifie le titre principal"' 
-    }]);
-  } finally {
-    setIsGenerating(false);
-  }
-};
+Template actuel: ${contextInfo.hasTemplate ? JSON.stringify(contextInfo.templateInfo) : 'Aucun'}
+Niveau client détecté: ${contextInfo.clientLevel}
+Longueur conversation: ${contextInfo.conversationLength} échanges`
+            })
+          });
+          
+          if (!res.ok) throw new Error('Erreur IA');
+          const data = await res.json();
+          
+          if (data.response.includes('<!DOCTYPE') || data.response.includes('<html')) {
+            let html = data.response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+            if (!html.includes('</html>')) html += '</body></html>';
+            if (!html.includes('<!DOCTYPE')) {
+              html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template Expert</title></head><body>' + html + '</body></html>';
+            }
+            
+            const template = createTemplate('Template expert basé sur nos discussions', html, 'ai-expert');
+            setCurrentTemplate(template);
+            
+            setMessages(prev => [...prev, { 
+              id: Date.now(), 
+              type: 'agent', 
+              content: 'Parfait ! J\'ai créé le template en tenant compte de tous nos échanges précédents. Il intègre les meilleures pratiques que nous avons discutées. Regardez la prévisualisation - qu\'en pensez-vous ? Y a-t-il des aspects que vous souhaitez affiner ?' 
+            }]);
+          } else {
+            let enhancedResponse = data.response;
+            
+            if (contextInfo.conversationLength > 2 && !contextInfo.hasTemplate && 
+                (messageContent.toLowerCase().includes('oui') || messageContent.toLowerCase().includes('parfait'))) {
+              enhancedResponse += '\n\nVoulez-vous que je crée maintenant le template basé sur nos discussions ? Je peux intégrer tous les éléments que nous avons évoqués.';
+            }
+            
+            setMessages(prev => [...prev, { 
+              id: Date.now(), 
+              type: 'agent', 
+              content: enhancedResponse 
+            }]);
+          }
+          
+        } catch (error) {
+          setMessages(prev => [...prev, { 
+            id: Date.now(), 
+            type: 'agent', 
+            content: 'Je rencontre un petit problème technique. Pouvez-vous reformuler ? En attendant, je garde en mémoire tous nos échanges précédents.' 
+          }]);
+        } finally {
+          setIsGenerating(false);
+        }
+      };
 
       /* –––––  génération IA ultra-exigeante ––––– */
       const generateWithAI = async (userInput) => {
@@ -351,7 +327,7 @@ End with </html>, no markdown fences.
 
       const detectType = (input) => {
         const lower = input.toLowerCase();
-        if (lower.includes('restaurant') || lower.includes('cafe') || lower.includes('food')) return 'restaurant';
+        if (lower.includes('restaurant') || lower.includes('café') || lower.includes('food')) return 'restaurant';
         if (lower.includes('boutique') || lower.includes('ecommerce') || lower.includes('shop')) return 'ecommerce';
         if (lower.includes('portfolio') || lower.includes('artiste') || lower.includes('photo')) return 'portfolio';
         if (lower.includes('agence') || lower.includes('cabinet') || lower.includes('avocat')) return 'business';
@@ -406,8 +382,8 @@ End with </html>, no markdown fences.
                 )),
                 isGenerating && React.createElement('div', { className: 'message agent' },
                   React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10 } },
-                    React.createElement('div', { className: 'spinner', style: { width: 20, height: 20 } }),
-                    'Génération en cours...'
+                    React.createElement('div', { style: { fontSize: '14px', opacity: 0.7 } }, 'Claude réfléchit et analyse...'),
+                    React.createElement('div', { className: 'spinner', style: { width: 20, height: 20 } })
                   )
                 )
               ),
@@ -418,7 +394,9 @@ End with </html>, no markdown fences.
                       value: inputMessage,
                       onChange: e => setInputMessage(e.target.value),
                       onKeyPress: handleKeyPress,
-                     placeholder: 'Discutez avec l IA ou demandez un template...',
+                      placeholder: currentTemplate ? 
+                        'Que souhaitez-vous ajuster sur le template ? Je peux tout modifier...' : 
+                        'Décrivez-moi votre client et son projet en détail...',
                       disabled: isGenerating
                     })
                   ),
@@ -426,7 +404,7 @@ End with </html>, no markdown fences.
                     onClick: handleSendMessage,
                     disabled: !inputMessage.trim() || isGenerating,
                     className: 'btn btn-primary'
-                 }, 'Envoyer')
+                  }, currentTemplate ? 'Modifier' : 'Discuter')
                 )
               )
             ),
