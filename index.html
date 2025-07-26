@@ -19,7 +19,6 @@
     /* ZONE CONVERSATION PREMIUM */
     .main-area{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);display:flex;flex-direction:column;overflow:hidden;border-radius:20px 0 0 20px}
     .main-header{padding:25px 35px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;position:relative;overflow:hidden}
-    .main-header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');opacity:.3}
     .main-header h1{font-size:1.6rem;font-weight:800;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 2px 10px rgba(0,0,0,.2)}
     .main-header p{opacity:.9;font-size:1rem;position:relative;z-index:1;font-weight:500}
     .status-badge{display:inline-flex;align-items:center;gap:10px;margin-top:15px;padding:8px 16px;background:rgba(255,255,255,.25);border-radius:25px;font-size:.85rem;position:relative;z-index:1;border:1px solid rgba(255,255,255,.3)}
@@ -28,12 +27,10 @@
     
     /* CONVERSATION STYLE PREMIUM */
     .conversation{flex:1;overflow-y:auto;padding:30px;background:linear-gradient(180deg,#fafbfc 0%,#f8fafc 100%);position:relative}
-    .conversation::before{content:'';position:absolute;top:0;left:0;right:0;height:30px;background:linear-gradient(180deg,rgba(255,255,255,.8),transparent);pointer-events:none;z-index:1}
     .message{margin-bottom:25px;max-width:88%;animation:slideIn .3s ease-out}
     @keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     .message.user{margin-left:auto}
     .message.user .bubble{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:25px 25px 8px 25px;padding:18px 24px;box-shadow:0 8px 32px rgba(102,126,234,.3);position:relative;overflow:hidden}
-    .message.user .bubble::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;background:radial-gradient(circle,rgba(255,255,255,.2),transparent);border-radius:50%;transform:translate(20px,-20px)}
     .message.agent .bubble{background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.3);border-radius:25px 25px 25px 8px;padding:18px 24px;box-shadow:0 8px 32px rgba(0,0,0,.1)}
     .message-content{white-space:pre-line;line-height:1.7;font-size:15px;font-weight:500}
     
@@ -44,9 +41,7 @@
     .input-field{width:100%;min-height:60px;max-height:140px;padding:18px 24px;border:2px solid rgba(102,126,234,.2);border-radius:20px;font-size:15px;font-family:inherit;resize:none;transition:all .3s ease;background:rgba(255,255,255,.8);backdrop-filter:blur(10px);line-height:1.6}
     .input-field:focus{outline:none;border-color:#667eea;background:rgba(255,255,255,.95);box-shadow:0 0 0 4px rgba(102,126,234,.1),0 8px 32px rgba(102,126,234,.2);transform:translateY(-2px)}
     .send-btn{padding:18px 28px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:20px;font-weight:700;font-size:16px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}
-    .send-btn::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);opacity:0;transition:opacity .3s ease}
     .send-btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 12px 40px rgba(102,126,234,.4)}
-    .send-btn:hover:not(:disabled)::before{opacity:1}
     .send-btn:disabled{opacity:.6;cursor:not-allowed}
     
     /* SIDEBAR PREMIUM */
@@ -54,7 +49,6 @@
     .sidebar-header{padding:25px;background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(5,150,105,.1));border-bottom:1px solid rgba(255,255,255,.2)}
     .sidebar-title{font-size:1.2rem;font-weight:800;color:#374151;margin-bottom:15px;text-shadow:0 1px 3px rgba(0,0,0,.1)}
     .current-prototype{background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:20px;border-radius:16px;text-align:center;font-size:14px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(16,185,129,.3)}
-    .current-prototype::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(255,255,255,.2),transparent);transform:rotate(45deg)}
     .current-prototype .name{font-weight:700;margin-bottom:8px;position:relative;z-index:1}
     .current-prototype .subtitle{opacity:.9;margin-bottom:15px;position:relative;z-index:1}
     .current-prototype .actions{display:flex;gap:10px;justify-content:center;position:relative;z-index:1}
@@ -74,7 +68,6 @@
     .btn-primary{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.3)}
     .btn-secondary{background:rgba(243,244,246,.8);color:#374151;backdrop-filter:blur(10px)}
     .btn-xs:hover{transform:translateY(-1px)}
-    .btn-primary:hover{box-shadow:0 8px 24px rgba(59,130,246,.4)}
     
     /* LOADING PREMIUM */
     .thinking{display:flex;align-items:center;gap:12px;padding:18px 24px;background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(37,99,235,.1));backdrop-filter:blur(10px);border-radius:25px 25px 25px 8px;margin-bottom:25px;max-width:88%;border:1px solid rgba(59,130,246,.2);animation:slideIn .3s ease-out}
@@ -87,8 +80,6 @@
     
     /* DEMO BUTTON PREMIUM */
     .demo-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;width:100%;margin-top:15px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(245,158,11,.3)}
-    .demo-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transition:left .6s ease}
-    .demo-btn:hover::before{left:100%}
     .demo-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,158,11,.4)}
     
     /* RESPONSIVE PREMIUM */
@@ -128,7 +119,7 @@
           setMessages(prev => [...prev, { 
             id: Date.now(), 
             type: 'agent', 
-            content: `✅ **API Claude Active** - Prêt à créer des prototypes premium (${data.keyLength} caractères)` 
+            content: '✅ **API Claude Active** - Prêt à créer des prototypes premium (' + data.keyLength + ' caractères)' 
           }]);
         } catch {
           setApiStatus('broken');
@@ -154,7 +145,7 @@
             console.error('❌ Popup bloqué - Téléchargement automatique');
             const a = document.createElement('a');
             a.href = url;
-            a.download = `prototype-interactif-${prototype.id}.html`;
+            a.download = 'prototype-interactif-' + prototype.id + '.html';
             a.click();
             URL.revokeObjectURL(url);
           }
@@ -169,7 +160,7 @@
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `prototype-${prototype.id}.html`;
+          a.download = 'prototype-' + prototype.id + '.html';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -192,7 +183,7 @@
       const createPrototype = (userInput, htmlCode, source) => {
         const prototype = {
           id: Date.now(),
-          name: `${detectType(userInput)} Pro – ${new Date().toLocaleTimeString()}`,
+          name: detectType(userInput) + ' Pro – ' + new Date().toLocaleTimeString(),
           userInput,
           htmlCode,
           source,
@@ -240,106 +231,9 @@
           let systemPrompt;
           
           if (isModificationRequest) {
-            systemPrompt = `Tu es un expert en modification de PROTOTYPES D'APPLICATION INTERACTIFS HAUT DE GAMME.
-
-PROTOTYPE ACTUEL À MODIFIER :
-${currentPrototype.htmlCode}
-
-DEMANDE DE MODIFICATION : ${messageContent}
-
-INSTRUCTIONS CRITIQUES :
-1. Conserve TOUTE la structure, navigation et interactivité existante
-2. Applique EXACTEMENT la modification demandée
-3. Maintiens le niveau de qualité premium (glassmorphisme, animations, etc.)
-4. Assure-toi que TOUTES les fonctionnalités restent opérationnelles
-5. Garde les graphiques Chart.js et les données simulées
-6. Préserve la navigation multi-écrans et les interactions
-7. Retourne le HTML complet modifié (DOCTYPE → </html>)
-
-IMPORTANT : Réponds UNIQUEMENT avec le code HTML complet du prototype modifié, RIEN d'autre.`;
+            systemPrompt = 'Tu es un expert en modification de PROTOTYPES D\'APPLICATION INTERACTIFS HAUT DE GAMME.\n\nPROTOTYPE ACTUEL À MODIFIER :\n' + currentPrototype.htmlCode + '\n\nDEMANDE DE MODIFICATION : ' + messageContent + '\n\nINSTRUCTIONS CRITIQUES :\n1. Conserve TOUTE la structure, navigation et interactivité existante\n2. Applique EXACTEMENT la modification demandée\n3. Maintiens le niveau de qualité premium (glassmorphisme, animations, etc.)\n4. Assure-toi que TOUTES les fonctionnalités restent opérationnelles\n5. Garde les graphiques Chart.js et les données simulées\n6. Préserve la navigation multi-écrans et les interactions\n7. Retourne le HTML complet modifié (DOCTYPE → </html>)\n\nIMPORTANT : Réponds UNIQUEMENT avec le code HTML complet du prototype modifié, RIEN d\'autre.';
           } else {
-            systemPrompt = `Tu es Claude, expert SENIOR en création de PROTOTYPES D'APPLICATIONS INTERACTIFS HAUT DE GAMME.
-
-🎯 MISSION CRITIQUE : Créer des prototypes d'applications PREMIUM, ULTRA-INTERACTIFS pour impressionner les clients.
-
-📋 EXIGENCES ABSOLUES POUR CHAQUE PROTOTYPE :
-
-🎨 DESIGN PREMIUM OBLIGATOIRE :
-- Glassmorphisme moderne (backdrop-filter, transparences)
-- Animations fluides CSS (transitions, transforms, keyframes)
-- Gradients sophistiqués et ombres portées
-- Typographie premium (Inter, SF Pro, système)
-- Palette de couleurs cohérente et moderne
-- Micro-interactions sur hover/focus
-- Design responsive mobile-first parfait
-
-⚡ INTERACTIVITÉ AVANCÉE OBLIGATOIRE :
-- Navigation SPA multi-écrans fonctionnelle (minimum 4-5 écrans)
-- Formulaires avec validation temps réel JavaScript
-- Modals, dropdowns, tabs fonctionnels
-- Boutons avec feedback visuel et sonore
-- Drag & drop si pertinent
-- Animations de chargement et transitions
-- État des composants (actif, hover, disabled)
-
-📊 DONNÉES ET GRAPHIQUES OBLIGATOIRES :
-- Chart.js via CDN pour tous les graphiques
-- Minimum 3 graphiques différents (line, bar, doughnut)
-- Données JSON simulées réalistes (min 20-50 éléments)
-- Tableaux avec tri, recherche, pagination
-- Statistiques calculées dynamiquement
-- LocalStorage pour persistance des données
-
-🔧 FONCTIONNALITÉS MÉTIER OBLIGATOIRES :
-- Écran de connexion fonctionnel (faux mais réaliste)
-- Dashboard avec KPI et graphiques temps réel
-- CRUD complet sur les données simulées
-- Modules métier spécialisés (selon le secteur)
-- Paramètres utilisateur modifiables
-- Notifications et alertes
-
-🏗️ STRUCTURE TYPE OBLIGATOIRE :
-1. Page de connexion avec animation
-2. Dashboard principal avec navigation
-3. Modules métier (3-4 minimum)
-4. Profil/Paramètres utilisateur
-5. Navigation latérale ou top moderne
-
-💻 TECHNOLOGIES IMPOSÉES :
-- HTML5 sémantique complet
-- CSS3 avancé (flexbox, grid, custom properties)
-- JavaScript ES6+ vanilla (classes, modules, async/await)
-- Chart.js 4.x via CDN : https://cdn.jsdelivr.net/npm/chart.js
-- Font Awesome via CDN pour icônes
-- LocalStorage pour données
-- Aucune dépendance externe autre que Chart.js
-
-🎯 SECTEURS SPÉCIALISÉS :
-- Restaurant : Backoffice + Menu interactif + Caisse + Analytics
-- E-commerce : Admin + Catalogue + Commandes + Stats
-- CRM : Prospects + Pipeline + Tâches + Rapports  
-- Immobilier : Biens + Visites + Clients + Agenda
-- Santé : Patients + Rendez-vous + Dossiers + Planning
-
-📱 RESPONSIVE EXIGÉ :
-- Mobile-first parfait (320px → 4K)
-- Navigation mobile avec burger menu
-- Composants adaptatifs
-- Touch-friendly sur mobile
-- Performance optimisée
-
-🔍 QUALITÉ FINALE :
-- Code propre, commenté, organisé
-- UX intuitive et moderne
-- Performance 90+ Lighthouse
-- Accessibilité WCAG 2.1
-- Cross-browser compatible
-
-⚠️ RÈGLE ABSOLUE : Crée une APPLICATION COMPLÈTE que le client peut utiliser comme si c'était un produit fini ! Pas de placeholder, tout doit être fonctionnel !
-
-HISTORIQUE CONVERSATION : ${JSON.stringify(conversationHistory, null, 2)}
-
-🚀 MAINTENANT : Crée le prototype d'application interactif haut de gamme selon ces spécifications !`;
+            systemPrompt = 'Tu es Claude, expert SENIOR en création de PROTOTYPES D\'APPLICATIONS INTERACTIFS HAUT DE GAMME.\n\n🎯 MISSION CRITIQUE : Créer des prototypes d\'applications PREMIUM, ULTRA-INTERACTIFS pour impressionner les clients.\n\n📋 EXIGENCES ABSOLUES POUR CHAQUE PROTOTYPE :\n\n🎨 DESIGN PREMIUM OBLIGATOIRE :\n- Glassmorphisme moderne (backdrop-filter, transparences)\n- Animations fluides CSS (transitions, transforms, keyframes)\n- Gradients sophistiqués et ombres portées\n- Typographie premium (Inter, SF Pro, système)\n- Palette de couleurs cohérente et moderne\n- Micro-interactions sur hover/focus\n- Design responsive mobile-first parfait\n\n⚡ INTERACTIVITÉ AVANCÉE OBLIGATOIRE :\n- Navigation SPA multi-écrans fonctionnelle (minimum 4-5 écrans)\n- Formulaires avec validation temps réel JavaScript\n- Modals, dropdowns, tabs fonctionnels\n- Boutons avec feedback visuel et sonore\n- Drag & drop si pertinent\n- Animations de chargement et transitions\n- État des composants (actif, hover, disabled)\n\n📊 DONNÉES ET GRAPHIQUES OBLIGATOIRES :\n- Chart.js via CDN pour tous les graphiques\n- Minimum 3 graphiques différents (line, bar, doughnut)\n- Données JSON simulées réalistes (min 20-50 éléments)\n- Tableaux avec tri, recherche, pagination\n- Statistiques calculées dynamiquement\n- LocalStorage pour persistance des données\n\n🔧 FONCTIONNALITÉS MÉTIER OBLIGATOIRES :\n- Écran de connexion fonctionnel (faux mais réaliste)\n- Dashboard avec KPI et graphiques temps réel\n- CRUD complet sur les données simulées\n- Modules métier spécialisés (selon le secteur)\n- Paramètres utilisateur modifiables\n- Notifications et alertes\n\n🏗️ STRUCTURE TYPE OBLIGATOIRE :\n1. Page de connexion avec animation\n2. Dashboard principal avec navigation\n3. Modules métier (3-4 minimum)\n4. Profil/Paramètres utilisateur\n5. Navigation latérale ou top moderne\n\n💻 TECHNOLOGIES IMPOSÉES :\n- HTML5 sémantique complet\n- CSS3 avancé (flexbox, grid, custom properties)\n- JavaScript ES6+ vanilla (classes, modules, async/await)\n- Chart.js 4.x via CDN : https://cdn.jsdelivr.net/npm/chart.js\n- Font Awesome via CDN pour icônes\n- LocalStorage pour données\n- Aucune dépendance externe autre que Chart.js\n\n🎯 SECTEURS SPÉCIALISÉS :\n- Restaurant : Backoffice + Menu interactif + Caisse + Analytics\n- E-commerce : Admin + Catalogue + Commandes + Stats\n- CRM : Prospects + Pipeline + Tâches + Rapports\n- Immobilier : Biens + Visites + Clients + Agenda\n- Santé : Patients + Rendez-vous + Dossiers + Planning\n\n📱 RESPONSIVE EXIGÉ :\n- Mobile-first parfait (320px → 4K)\n- Navigation mobile avec burger menu\n- Composants adaptatifs\n- Touch-friendly sur mobile\n- Performance optimisée\n\n🔍 QUALITÉ FINALE :\n- Code propre, commenté, organisé\n- UX intuitive et moderne\n- Performance 90+ Lighthouse\n- Accessibilité WCAG 2.1\n- Cross-browser compatible\n\n⚠️ RÈGLE ABSOLUE : Crée une APPLICATION COMPLÈTE que le client peut utiliser comme si c\'était un produit fini ! Pas de placeholder, tout doit être fonctionnel !\n\nHISTORIQUE CONVERSATION : ' + JSON.stringify(conversationHistory, null, 2) + '\n\n🚀 MAINTENANT : Crée le prototype d\'application interactif haut de gamme selon ces spécifications !';
           }
 
           const res = await fetch('/.netlify/functions/ai-chat', {
@@ -435,7 +329,7 @@ HISTORIQUE CONVERSATION : ${JSON.stringify(conversationHistory, null, 2)}
             
             React.createElement('div', { className: 'conversation' },
               messages.map(msg => 
-                React.createElement('div', { key: msg.id, className: `message ${msg.type}` },
+                React.createElement('div', { key: msg.id, className: 'message ' + msg.type },
                   React.createElement('div', { className: 'bubble' },
                     React.createElement('div', { className: 'message-content' }, msg.content)
                   )
@@ -500,457 +394,24 @@ HISTORIQUE CONVERSATION : ${JSON.stringify(conversationHistory, null, 2)}
               !currentPrototype && React.createElement('button', {
                 className: 'btn-sm demo-btn',
                 onClick: () => {
-                  const demoHTML = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestaurantPro - Gestion Premium</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; color: #333; overflow-x: hidden;
-        }
-        .app { display: flex; height: 100vh; }
-        .sidebar { 
-            width: 280px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
-            padding: 0; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.1);
-        }
-        .sidebar-header { 
-            padding: 25px; background: linear-gradient(135deg, #667eea, #764ba2); 
-            color: #fff; text-align: center;
-        }
-        .sidebar-header h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 5px; }
-        .sidebar-header p { opacity: 0.9; font-size: 0.9rem; }
-        .nav-menu { flex: 1; padding: 20px 0; }
-        .nav-item { 
-            display: flex; align-items: center; padding: 15px 25px; 
-            cursor: pointer; transition: all 0.3s ease; border-left: 3px solid transparent;
-        }
-        .nav-item:hover, .nav-item.active { 
-            background: rgba(102,126,234,0.1); border-left-color: #667eea; 
-            transform: translateX(5px);
-        }
-        .nav-item .icon { margin-right: 12px; font-size: 1.2rem; }
-        .main-content { 
-            flex: 1; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        .topbar { 
-            padding: 20px 30px; background: rgba(255,255,255,0.95); 
-            border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; 
-            justify-content: space-between; align-items: center;
-        }
-        .topbar h2 { font-size: 1.6rem; font-weight: 700; color: #1f2937; }
-        .user-info { 
-            display: flex; align-items: center; gap: 15px; 
-            padding: 10px 20px; background: rgba(102,126,234,0.1); 
-            border-radius: 25px; cursor: pointer; transition: all 0.3s ease;
-        }
-        .user-info:hover { background: rgba(102,126,234,0.2); transform: translateY(-2px); }
-        .content-area { flex: 1; padding: 30px; overflow-y: auto; }
-        .dashboard-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 25px; margin-bottom: 30px;
-        }
-        .stat-card { 
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            padding: 25px; border-radius: 16px; text-align: center; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease; position: relative; overflow: hidden;
-        }
-        .stat-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,0.15); }
-        .stat-value { font-size: 2.5rem; font-weight: 800; color: #1f2937; margin-bottom: 8px; }
-        .stat-label { color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .chart-container { 
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            padding: 30px; border-radius: 16px; margin-bottom: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);
-        }
-        .chart-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: #1f2937; }
-        .orders-list { 
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        .orders-header { 
-            padding: 20px 25px; background: linear-gradient(135deg, #10b981, #059669); 
-            color: #fff; font-weight: 700; font-size: 1.1rem;
-        }
-        .order-item { 
-            padding: 20px 25px; border-bottom: 1px solid rgba(0,0,0,0.05); 
-            display: flex; justify-content: between; align-items: center; 
-            transition: all 0.3s ease; cursor: pointer;
-        }
-        .order-item:hover { background: rgba(102,126,234,0.05); transform: translateX(5px); }
-        .order-info { flex: 1; }
-        .order-id { font-weight: 700; color: #1f2937; margin-bottom: 4px; }
-        .order-details { color: #6b7280; font-size: 0.9rem; }
-        .order-status { 
-            padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; 
-            font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-processing { background: #dbeafe; color: #1e40af; }
-        .status-completed { background: #d1fae5; color: #065f46; }
-        .login-screen { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex; align-items: center; justify-content: center; z-index: 1000;
-        }
-        .login-form { 
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
-            padding: 40px; border-radius: 20px; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3);
-            min-width: 400px; animation: slideIn 0.5s ease-out;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
-        .login-title { font-size: 2rem; font-weight: 800; margin-bottom: 30px; color: #1f2937; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; }
-        .form-input { 
-            width: 100%; padding: 15px; border: 2px solid rgba(0,0,0,0.1); 
-            border-radius: 12px; font-size: 1rem; transition: all 0.3s ease;
-            background: rgba(255,255,255,0.8);
-        }
-        .form-input:focus { 
-            outline: none; border-color: #667eea; 
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1); 
-            background: rgba(255,255,255,0.95);
-        }
-        .login-btn { 
-            width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); 
-            color: #fff; border: none; border-radius: 12px; font-size: 1.1rem; 
-            font-weight: 700; cursor: pointer; transition: all 0.3s ease; margin-top: 10px;
-        }
-        .login-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 10px 30px rgba(102,126,234,0.4); 
-        }
-        .hidden { display: none !important; }
-        @media (max-width: 768px) {
-            .app { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; }
-            .dashboard-grid { grid-template-columns: 1fr; }
-            .login-form { min-width: 90%; margin: 20px; }
-        }
-    </style>
-</head>
-<body>
-    <!-- Écran de connexion -->
-    <div id="loginScreen" class="login-screen">
-        <div class="login-form">
-            <h1 class="login-title">🏪 RestaurantPro</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" value="admin@restaurant.com" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Mot de passe</label>
-                    <input type="password" class="form-input" value="admin123" required>
-                </div>
-                <button type="submit" class="login-btn">Se connecter</button>
-            </form>
-            <p style="margin-top: 20px; color: #6b7280; font-size: 0.9rem;">
-                💡 Utilisez les identifiants pré-remplis pour tester
-            </p>
-        </div>
-    </div>
-
-    <!-- Application principale -->
-    <div id="mainApp" class="app hidden">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h1>🏪 RestaurantPro</h1>
-                <p>Gestion Premium</p>
-            </div>
-            <div class="nav-menu">
-                <div class="nav-item active" data-screen="dashboard">
-                    <span class="icon">📊</span> Tableau de Bord
-                </div>
-                <div class="nav-item" data-screen="orders">
-                    <span class="icon">🛒</span> Commandes
-                </div>
-                <div class="nav-item" data-screen="menu">
-                    <span class="icon">🍔</span> Menu
-                </div>
-                <div class="nav-item" data-screen="customers">
-                    <span class="icon">👥</span> Clients
-                </div>
-                <div class="nav-item" data-screen="analytics">
-                    <span class="icon">📈</span> Analytics
-                </div>
-                <div class="nav-item" data-screen="settings">
-                    <span class="icon">⚙️</span> Paramètres
-                </div>
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <div class="topbar">
-                <h2 id="pageTitle">Tableau de Bord</h2>
-                <div class="user-info">
-                    <span>👨‍💼</span>
-                    <span>Admin Restaurant</span>
-                </div>
-            </div>
-            
-            <div class="content-area">
-                <!-- Dashboard -->
-                <div id="dashboardContent">
-                    <div class="dashboard-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="dailySales">€1,247</div>
-                            <div class="stat-label">Ventes Aujourd'hui</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="ordersCount">47</div>
-                            <div class="stat-label">Commandes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="avgOrder">€26.50</div>
-                            <div class="stat-label">Panier Moyen</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="satisfaction">4.8⭐</div>
-                            <div class="stat-label">Satisfaction</div>
-                        </div>
-                    </div>
-                    
-                    <div class="chart-container">
-                        <h3 class="chart-title">📈 Ventes des 7 derniers jours</h3>
-                        <canvas id="salesChart"></canvas>
-                    </div>
-                    
-                    <div class="orders-list">
-                        <div class="orders-header">🛒 Commandes Récentes</div>
-                        <div id="recentOrders"></div>
-                    </div>
-                </div>
-
-                <!-- Autres écrans -->
-                <div id="ordersContent" class="hidden">
-                    <h3 style="margin-bottom: 20px;">🛒 Gestion des Commandes</h3>
-                    <div id="allOrders"></div>
-                </div>
-
-                <div id="menuContent" class="hidden">
-                    <h3 style="margin-bottom: 20px;">🍔 Gestion du Menu</h3>
-                    <div id="menuItems"></div>
-                </div>
-
-                <div id="customersContent" class="hidden">
-                    <h3 style="margin-bottom: 20px;">👥 Base Clients</h3>
-                    <div id="customersList"></div>
-                </div>
-
-                <div id="analyticsContent" class="hidden">
-                    <h3 style="margin-bottom: 20px;">📈 Analytics Avancées</h3>
-                    <div class="chart-container">
-                        <canvas id="analyticsChart"></canvas>
-                    </div>
-                </div>
-
-                <div id="settingsContent" class="hidden">
-                    <h3 style="margin-bottom: 20px;">⚙️ Paramètres</h3>
-                    <p>Configuration du restaurant, utilisateurs, etc.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Données simulées
-        const orders = [
-            { id: 'CMD001', customer: 'Marie Dubois', items: 'Kebab + Frites', total: 12.50, status: 'completed', time: '12:34' },
-            { id: 'CMD002', customer: 'Jean Martin', items: 'Menu Complet', total: 18.90, status: 'processing', time: '12:45' },
-            { id: 'CMD003', customer: 'Sarah Wilson', items: 'Sandwich + Boisson', total: 9.50, status: 'pending', time: '12:52' },
-            { id: 'CMD004', customer: 'Pierre Leroy', items: 'Assiette Kebab', total: 15.00, status: 'completed', time: '13:15' },
-            { id: 'CMD005', customer: 'Emma Garcia', items: 'Menu Famille', total: 35.80, status: 'processing', time: '13:22' }
-        ];
-
-        const menuItems = [
-            { id: 1, name: 'Kebab Classique', price: 8.50, category: 'Sandwichs' },
-            { id: 2, name: 'Menu Complet', price: 12.90, category: 'Menus' },
-            { id: 3, name: 'Assiette Kebab', price: 11.50, category: 'Assiettes' },
-            { id: 4, name: 'Frites', price: 3.50, category: 'Accompagnements' }
-        ];
-
-        // Gestion de la connexion
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            initDashboard();
-        });
-
-        // Navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const screen = this.dataset.screen;
-                switchScreen(screen);
-                
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        function switchScreen(screen) {
-            document.querySelectorAll('[id$="Content"]').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById(screen + 'Content').classList.remove('hidden');
-            
-            const titles = {
-                dashboard: 'Tableau de Bord',
-                orders: 'Gestion des Commandes', 
-                menu: 'Gestion du Menu',
-                customers: 'Base Clients',
-                analytics: 'Analytics Avancées',
-                settings: 'Paramètres'
-            };
-            document.getElementById('pageTitle').textContent = titles[screen];
-
-            if (screen === 'analytics') initAnalyticsChart();
-        }
-
-        function initDashboard() {
-            // Animation des stats
-            animateValue('dailySales', 0, 1247, 1000, '€');
-            animateValue('ordersCount', 0, 47, 800);
-            animateValue('avgOrder', 0, 26.50, 1200, '€');
-
-            // Graphique des ventes
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-                    datasets: [{
-                        label: 'Ventes (€)',
-                        data: [850, 920, 1100, 980, 1350, 1650, 1247],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102,126,234,0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                        x: { grid: { color: 'rgba(0,0,0,0.05)' } }
-                    }
-                }
-            });
-
-            // Liste des commandes récentes
-            displayRecentOrders();
-        }
-
-        function initAnalyticsChart() {
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Kebabs', 'Menus', 'Assiettes', 'Accompagnements'],
-                    datasets: [{
-                        data: [45, 30, 15, 10],
-                        backgroundColor: ['#667eea', '#764ba2', '#10b981', '#f59e0b']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
-                }
-            });
-        }
-
-        function displayRecentOrders() {
-            const container = document.getElementById('recentOrders');
-            container.innerHTML = orders.slice(0, 3).map(order => 
-                '<div class="order-item">' +
-                    '<div class="order-info">' +
-                        '<div class="order-id">' + order.id + ' - ' + order.customer + '</div>' +
-                        '<div class="order-details">' + order.items + ' • ' + order.time + '</div>' +
-                    '</div>' +
-                    '<div class="order-status status-' + order.status + '">' + 
-                        (order.status === 'completed' ? 'Terminé' : 
-                         order.status === 'processing' ? 'En cours' : 'En attente') +
-                    '</div>' +
-                '</div>'
-            ).join('');
-        }
-
-        function animateValue(id, start, end, duration, prefix = '') {
-            const element = document.getElementById(id);
-            const range = end - start;
-            const startTime = performance.now();
-            
-            function updateValue(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const current = start + (range * progress);
-                
-                if (prefix === '€') {
-                    element.textContent = prefix + current.toFixed(2);
-                } else {
-                    element.textContent = Math.floor(current) + (prefix || '');
-                }
-                
-                if (progress < 1) {
-                    requestAnimationFrame(updateValue);
-                }
-            }
-            
-            requestAnimationFrame(updateValue);
-        }
-
-        // Mise à jour temps réel simulée
-        setInterval(() => {
-            const stats = ['dailySales', 'ordersCount'];
-            const randomStat = stats[Math.floor(Math.random() * stats.length)];
-            const element = document.getElementById(randomStat);
-            const current = parseFloat(element.textContent.replace(/[€]/g, ''));
-            const change = Math.random() > 0.5 ? 1 : -1;
-            const newValue = Math.max(0, current + change);
-            
-            if (randomStat === 'dailySales') {
-                element.textContent = '€' + newValue.toFixed(2);
-            } else {
-                element.textContent = Math.floor(newValue);
-            }
-        }, 5000);
-    </script>
-</body>
-</html>`;
-                  const demoApp = { id: 'demo-premium', name: 'RestaurantPro Demo Premium', htmlCode: demoHTML };
-                  console.log('🎬 Ouverture prototype premium...');
+                  const simpleDemo = 'Demo Restaurant Pro';
+                  const demoApp = { id: 'demo-simple', name: simpleDemo, htmlCode: '<!DOCTYPE html><html><head><title>Demo</title></head><body><h1>Demo Prototype Restaurant</h1><p>Ceci est un exemple de prototype.</p></body></html>' };
+                  console.log('🎬 Ouverture demo simple...');
                   openPrototype(demoApp);
                 }
-              }, '🎬 Demo Prototype Premium')
+              }, '🎬 Demo Prototype')
             ),
             
             React.createElement('div', { className: 'prototypes-list' },
               prototypes.map(t => 
                 React.createElement('div', { 
                   key: t.id, 
-                  className: `prototype-item ${currentPrototype?.id === t.id ? 'active' : ''}`,
+                  className: 'prototype-item' + (currentPrototype?.id === t.id ? ' active' : ''),
                   onClick: () => setCurrentPrototype(t)
                 },
                   React.createElement('div', { className: 'prototype-name' }, t.name),
                   React.createElement('div', { className: 'prototype-meta' }, 
-                    `${t.source} • ${t.createdAt.toLocaleTimeString()}`
+                    t.source + ' • ' + t.createdAt.toLocaleTimeString()
                   ),
                   React.createElement('div', { className: 'prototype-actions' },
                     React.createElement('button', { 
@@ -968,9 +429,9 @@ HISTORIQUE CONVERSATION : ${JSON.stringify(conversationHistory, null, 2)}
               prototypes.length === 0 && React.createElement('div', { 
                 style: { 
                   padding: '30px 20px', textAlign: 'center', color: '#6b7280', 
-                  fontSize: '14px', fontStyle: 'italic'
+                  fontSize: '14px', fontStyle: 'italic', lineHeight: '1.6'
                 }
-              }, 'Aucun prototype créé\nCommencez par décrire votre application !')
+              }, 'Aucun prototype créé.\nCommencez par décrire votre application !')
             )
           )
         )
@@ -980,4 +441,4 @@ HISTORIQUE CONVERSATION : ${JSON.stringify(conversationHistory, null, 2)}
     ReactDOM.render(React.createElement(App), document.getElementById('root'));
   </script>
 </body>
-</html>;
+</html>
