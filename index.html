@@ -322,10 +322,8 @@ SI LA DERNIÈRE DEMANDE CONCERNE UN TEMPLATE/PROTOTYPE/APPLICATION ET QUE TU N'A
           } else {
             let enhancedResponse = data.response;
             
-            if (contextInfo.conversationLength > 2 && !contextInfo.hasTemplate && 
-                (messageContent.toLowerCase().includes('oui') || messageContent.toLowerCase().includes('parfait'))) {
-              enhancedResponse += '\n\nVoulez-vous que je crée maintenant le template basé sur nos discussions ? Je peux intégrer tous les éléments que nous avons évoqués.';
-            }
+            // NE PAS proposer automatiquement de créer un template
+            // Laisser l'IA gérer la logique de proposition naturellement
             
             setMessages(prev => [...prev, { 
               id: Date.now(), 
@@ -437,6 +435,14 @@ End with </html>, no markdown fences.
           e.preventDefault();
           handleSendMessage();
         }
+      };
+
+      const openTemplateInNewTab = (template) => {
+        const blob = new Blob([template.htmlCode], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Nettoyer l'URL après 1 seconde
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       };
 
       const downloadTemplate = (template) => {
