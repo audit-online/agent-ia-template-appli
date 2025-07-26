@@ -19,14 +19,57 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .template-loading {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
+        .preview-iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
         }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 95%;
+            height: 90%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .modal-body {
+            flex: 1;
+            overflow: hidden;
+        }
+        .code-editor {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            padding: 15px;
+            resize: vertical;
+            background: #f8f9fa;
         }
     </style>
 </head>
@@ -34,9 +77,9 @@
     <div id="root"></div>
     
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
         
-        // Icônes optimisées
+        // Icônes
         const MessageCircle = () => (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -49,28 +92,10 @@
             </svg>
         );
         
-        const Code = () => (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            </svg>
-        );
-        
-        const Palette = () => (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 21h16" />
-            </svg>
-        );
-        
-        const Zap = () => (
+        const Eye = () => (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-        );
-        
-        const Settings = () => (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
         );
         
@@ -80,16 +105,21 @@
             </svg>
         );
         
-        const Eye = () => (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        const X = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
         );
-        
-        const Trash2 = () => (
+
+        const Code = () => (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+        );
+
+        const Zap = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
         );
 
@@ -99,43 +129,39 @@
             const [generatedTemplates, setGeneratedTemplates] = useState([]);
             const [isGenerating, setIsGenerating] = useState(false);
             const [aiStatus, setAiStatus] = useState('online');
+            const [previewModal, setPreviewModal] = useState(null);
+            const [isGeneratingCode, setIsGeneratingCode] = useState(false);
 
             const templateTypes = {
                 restaurant: {
                     name: 'Restaurant',
                     icon: '🍽️',
-                    description: 'Templates pour restaurants, cafés, food trucks',
-                    sections: ['header', 'hero', 'menu', 'about', 'contact', 'gallery', 'testimonials', 'pricing', 'blog', 'events']
+                    description: 'Templates pour restaurants, cafés, food trucks'
                 },
                 ecommerce: {
                     name: 'E-commerce',
                     icon: '🛒',
-                    description: 'Boutiques en ligne, catalogues produits',
-                    sections: ['header', 'hero', 'products', 'categories', 'cart', 'checkout', 'testimonials', 'footer']
+                    description: 'Boutiques en ligne, catalogues produits'
                 },
                 portfolio: {
                     name: 'Portfolio',
                     icon: '🎨',
-                    description: 'Sites pour créatifs, artistes, développeurs',
-                    sections: ['header', 'hero', 'projects', 'about', 'skills', 'contact', 'testimonials']
+                    description: 'Sites pour créatifs, artistes, développeurs'
                 },
                 business: {
                     name: 'Business',
                     icon: '💼',
-                    description: 'Sites d\'entreprise, services professionnels',
-                    sections: ['header', 'hero', 'services', 'about', 'team', 'contact', 'testimonials', 'pricing']
+                    description: 'Sites d\'entreprise, services professionnels'
                 },
                 blog: {
                     name: 'Blog',
                     icon: '📝',
-                    description: 'Blogs, magazines, sites de contenu',
-                    sections: ['header', 'hero', 'articles', 'categories', 'sidebar', 'contact', 'newsletter']
+                    description: 'Blogs, magazines, sites de contenu'
                 },
                 landing: {
                     name: 'Landing Page',
                     icon: '🚀',
-                    description: 'Pages de conversion, campagnes marketing',
-                    sections: ['header', 'hero', 'features', 'benefits', 'testimonials', 'pricing', 'cta', 'footer']
+                    description: 'Pages de conversion, campagnes marketing'
                 }
             };
 
@@ -144,7 +170,7 @@
                     {
                         id: 1,
                         type: 'agent',
-                        content: "👋 Salut ! Je suis votre Agent IA spécialisé dans la création de templates et d'applications web.\n\n🎯 **Ce que je peux faire pour vous :**\n• Créer des templates complets (Restaurant, E-commerce, Portfolio, etc.)\n• Générer du code HTML, CSS, JavaScript\n• Personnaliser le design selon vos besoins\n• Optimiser pour mobile et SEO\n• Exporter pour Netlify, Vercel, etc.\n\n💬 **Comment commencer ?**\nDites-moi simplement quel type de site vous voulez créer !\n\nExemples :\n- \"Je veux un site pour mon restaurant italien\"\n- \"Crée-moi une boutique en ligne pour des vêtements\"\n- \"J'ai besoin d'un portfolio pour mes photos\"",
+                        content: "👋 Salut ! Je suis votre Agent IA spécialisé dans la création de templates.\n\n🎯 **Je peux créer pour vous :**\n• Du code HTML/CSS personnalisé\n• Des templates complets et fonctionnels\n• Du design responsive et moderne\n\n💬 **Comment ça marche ?**\n1. Décrivez-moi votre projet\n2. Je génère le code personnalisé\n3. Vous prévisualisez le résultat\n4. Vous téléchargez les fichiers\n\n🚀 **Exemple :** \"Crée-moi un site pour mon restaurant italien avec un menu élégant\"",
                         timestamp: new Date()
                     }
                 ]);
@@ -179,19 +205,6 @@
                     setAiStatus('thinking');
                     console.log('🤖 Envoi vers l\'IA:', userMessage);
                     
-                    // Test fonction
-                    const testResponse = await fetch('/.netlify/functions/ai-chat', {
-                        method: 'GET'
-                    });
-                    
-                    console.log('🔍 Test fonction - Status:', testResponse.status);
-                    
-                    if (testResponse.ok) {
-                        const testData = await testResponse.json();
-                        console.log('✅ Test fonction OK:', testData);
-                    }
-                    
-                    // Appel principal
                     const response = await fetch('/.netlify/functions/ai-chat', {
                         method: 'POST',
                         headers: {
@@ -199,121 +212,208 @@
                         },
                         body: JSON.stringify({
                             message: userMessage,
-                            systemPrompt: `Tu es un expert en création de sites web et design. Analyse la demande de l'utilisateur et :
+                            systemPrompt: `Tu es un expert développeur web et designer. Analyse la demande de l'utilisateur et :
 
 1. Identifie le type de site web nécessaire (restaurant, ecommerce, portfolio, business, blog, landing)
 2. Recommande les sections appropriées
 3. Suggère des couleurs et un style
 4. Propose des fonctionnalités spécifiques
-5. Donne des conseils personnalisés
 
-Réponds de manière conversationnelle et enthousiaste. Utilise des emojis et du markdown pour structurer ta réponse.
+Réponds de manière conversationnelle et enthousiaste. Utilise des emojis et du markdown.
 
-Si l'utilisateur demande la génération d'un template, termine ta réponse par "GENERATE_TEMPLATE" pour déclencher la génération automatique.`
+Si l'utilisateur demande la création/génération d'un template, termine ta réponse par "GENERATE_TEMPLATE" pour déclencher la génération de code.`
                         })
                     });
 
-                    console.log('📡 Statut réponse POST:', response.status);
-                    console.log('📡 Headers réponse:', response.headers);
-
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('❌ Erreur POST:', errorText);
-                        throw new Error(`Erreur ${response.status}: ${errorText}`);
+                        throw new Error(`Erreur ${response.status}`);
                     }
 
                     const aiResponse = await response.json();
-                    console.log('✅ Réponse IA reçue:', aiResponse);
-                    
                     setAiStatus('online');
                     
-                    // Vérifier si Claude demande la génération d'un template
                     const shouldGenerate = aiResponse.response && aiResponse.response.includes('GENERATE_TEMPLATE');
                     
                     return {
                         id: Date.now(),
                         type: 'agent',
-                        content: aiResponse.response ? aiResponse.response.replace('GENERATE_TEMPLATE', '') : 'Réponse reçue sans contenu.',
+                        content: aiResponse.response ? aiResponse.response.replace('GENERATE_TEMPLATE', '') : 'Réponse reçue.',
                         timestamp: new Date(),
                         detectedType: aiResponse.detectedType,
                         recommendations: aiResponse.recommendations,
-                        showGenerateButton: aiResponse.detectedType ? true : false,
-                        source: aiResponse.source || 'claude-api',
-                        sections: aiResponse.recommendations?.sections || [],
-                        modelUsed: aiResponse.modelUsed
+                        showGenerateButton: aiResponse.detectedType || shouldGenerate,
+                        userRequest: userMessage
                     };
 
                 } catch (error) {
-                    console.error('💥 Erreur complète:', error);
+                    console.error('💥 Erreur:', error);
                     setAiStatus('error');
                     
                     return {
                         id: Date.now(),
                         type: 'agent',
-                        content: `❌ **Erreur détectée**\n\n🔧 **Détails :**\n${error.message}\n\n📋 **Vérifications :**\n• Fonction Netlify déployée\n• Variable ANTHROPIC_KEY configurée\n• Connexion réseau stable\n\n🔄 Réessayez dans quelques secondes...`,
+                        content: `❌ **Erreur de connexion**\n\n${error.message}\n\nRéessayez dans quelques secondes...`,
                         timestamp: new Date(),
-                        showRetryButton: true,
                         isError: true
                     };
                 }
             };
 
-            const generateTemplate = (templateType, sections) => {
-                if (!templateType || !templateTypes[templateType]) {
-                    console.error('Type de template invalide:', templateType);
-                    return;
-                }
-
-                setIsGenerating(true);
+            const generateRealTemplate = async (detectedType, userRequest) => {
+                setIsGeneratingCode(true);
                 
-                // Simulation réaliste de génération
-                const steps = [
-                    'Analyse du type de template...',
-                    'Génération de la structure HTML...',
-                    'Création du design CSS...',
-                    'Ajout des interactions JavaScript...',
-                    'Optimisation responsive...',
-                    'Finalisation...'
-                ];
-                
-                let currentStep = 0;
-                
-                const interval = setInterval(() => {
-                    if (currentStep < steps.length - 1) {
-                        currentStep++;
-                        // Vous pouvez ajouter un état pour afficher l'étape actuelle
-                    } else {
-                        clearInterval(interval);
-                        
-                        const newTemplate = {
-                            id: Date.now(),
-                            type: templateType,
-                            name: `${templateTypes[templateType].name} Template`,
-                            sections: sections || templateTypes[templateType].sections,
-                            createdAt: new Date(),
-                            status: 'ready',
-                            preview: `Template ${templateTypes[templateType].name} avec ${(sections || templateTypes[templateType].sections).length} sections`,
-                            files: ['index.html', 'style.css', 'script.js'],
-                            size: '2.3 MB'
-                        };
+                try {
+                    console.log('🎨 Génération de template pour:', userRequest);
+                    
+                    const response = await fetch('/.netlify/functions/ai-chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: `Génère un template HTML complet pour: ${userRequest}`,
+                            systemPrompt: `Tu es un développeur web expert. Génère un template HTML complet, moderne et responsive basé sur cette demande: "${userRequest}".
 
-                        setGeneratedTemplates(prev => [...prev, newTemplate]);
-                        setIsGenerating(false);
+INSTRUCTIONS IMPORTANTES:
+1. Crée un fichier HTML complet avec CSS intégré dans <style>
+2. Utilise un design moderne et professionnel
+3. Rends-le responsive (mobile-friendly)
+4. Ajoute des couleurs et styles appropriés au type de site
+5. Inclus du contenu réaliste et pertinent
+6. Ajoute des interactions JavaScript simples si nécessaire
+7. Utilise des emojis pour les images/icônes
+8. Assure-toi que le code est propre et bien commenté
 
-                        const confirmMessage = {
-                            id: Date.now(),
-                            type: 'agent',
-                            content: `✅ **Template généré avec succès !**\n\n🎉 Votre template ${templateTypes[templateType].name} est prêt avec ${(sections || templateTypes[templateType].sections).length} sections.\n\n📋 **Fichiers générés :**\n• HTML (Structure complète)\n• CSS (Design responsive)\n• JavaScript (Interactions)\n\n🚀 **Prochaines étapes :**\n• Prévisualiser le template\n• Personnaliser le contenu\n• Télécharger les fichiers\n• Déployer sur Netlify/Vercel\n\nVoulez-vous que je personnalise quelque chose ?`,
-                            timestamp: new Date()
-                        };
+Type détecté: ${detectedType || 'général'}
 
-                        setMessages(prev => [...prev, confirmMessage]);
+Réponds UNIQUEMENT avec le code HTML complet, sans markdown ni explications.`
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la génération');
                     }
-                }, 800); // Plus rapide : 800ms par étape
+
+                    const result = await response.json();
+                    let htmlCode = result.response;
+                    
+                    // Nettoyer le code (enlever les balises markdown si présentes)
+                    htmlCode = htmlCode.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+                    
+                    const newTemplate = {
+                        id: Date.now(),
+                        type: detectedType || 'custom',
+                        name: `Template ${templateTypes[detectedType]?.name || 'Personnalisé'}`,
+                        userRequest: userRequest,
+                        htmlCode: htmlCode,
+                        createdAt: new Date(),
+                        status: 'ready'
+                    };
+
+                    setGeneratedTemplates(prev => [...prev, newTemplate]);
+                    
+                    const confirmMessage = {
+                        id: Date.now(),
+                        type: 'agent',
+                        content: `✅ **Template généré avec succès !**\n\n🎉 Votre template personnalisé est prêt !\n\n📋 **Contenu :**\n• HTML complet et responsive\n• CSS moderne intégré\n• Contenu adapté à votre demande\n\n🔍 **Actions disponibles :**\n• Prévisualiser le résultat\n• Télécharger le fichier HTML\n• Demander des modifications\n\nVoulez-vous que je modifie quelque chose ?`,
+                        timestamp: new Date()
+                    };
+
+                    setMessages(prev => [...prev, confirmMessage]);
+                    
+                } catch (error) {
+                    console.error('Erreur génération:', error);
+                    const errorMessage = {
+                        id: Date.now(),
+                        type: 'agent',
+                        content: `❌ **Erreur lors de la génération**\n\n${error.message}\n\nRéessayez ou reformulez votre demande.`,
+                        timestamp: new Date(),
+                        isError: true
+                    };
+                    setMessages(prev => [...prev, errorMessage]);
+                } finally {
+                    setIsGeneratingCode(false);
+                }
             };
 
-            const deleteTemplate = (templateId) => {
-                setGeneratedTemplates(prev => prev.filter(t => t.id !== templateId));
+            const PreviewModal = ({ template, onClose }) => {
+                const [activeTab, setActiveTab] = useState('preview');
+                const iframeRef = useRef(null);
+
+                useEffect(() => {
+                    if (iframeRef.current && activeTab === 'preview') {
+                        const iframe = iframeRef.current;
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        doc.open();
+                        doc.write(template.htmlCode);
+                        doc.close();
+                    }
+                }, [template.htmlCode, activeTab]);
+
+                return (
+                    <div className="modal-overlay" onClick={onClose}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-900">{template.name}</h2>
+                                    <p className="text-sm text-gray-500">{template.userRequest}</p>
+                                </div>
+                                <button 
+                                    onClick={onClose}
+                                    className="p-2 hover:bg-gray-100 rounded-lg"
+                                >
+                                    <X />
+                                </button>
+                            </div>
+                            
+                            <div className="flex border-b">
+                                <button 
+                                    className={`px-4 py-2 font-medium ${activeTab === 'preview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
+                                    onClick={() => setActiveTab('preview')}
+                                >
+                                    👁️ Aperçu
+                                </button>
+                                <button 
+                                    className={`px-4 py-2 font-medium ${activeTab === 'code' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}
+                                    onClick={() => setActiveTab('code')}
+                                >
+                                    💻 Code HTML
+                                </button>
+                            </div>
+                            
+                            <div className="modal-body p-4">
+                                {activeTab === 'preview' ? (
+                                    <iframe
+                                        ref={iframeRef}
+                                        className="preview-iframe"
+                                        title="Template Preview"
+                                        sandbox="allow-same-origin allow-scripts"
+                                    />
+                                ) : (
+                                    <div>
+                                        <div className="flex justify-between items-center mb-3">
+                                            <span className="text-sm text-gray-600">Code HTML généré par l'IA</span>
+                                            <button 
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(template.htmlCode);
+                                                    alert('Code copié dans le presse-papier !');
+                                                }}
+                                                className="text-blue-600 hover:text-blue-800 text-sm"
+                                            >
+                                                📋 Copier
+                                            </button>
+                                        </div>
+                                        <textarea
+                                            className="code-editor"
+                                            value={template.htmlCode}
+                                            readOnly
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
             };
 
             return (
@@ -327,7 +427,7 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                     </div>
                                     <div>
                                         <h1 className="text-xl font-bold text-gray-900">Agent IA Template</h1>
-                                        <p className="text-sm text-gray-500">Générateur intelligent de sites web</p>
+                                        <p className="text-sm text-gray-500">Générateur intelligent avec prévisualisation</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-4">
@@ -344,7 +444,6 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                              aiStatus === 'thinking' ? 'Réflexion...' : 'Erreur'}
                                         </span>
                                     </span>
-                                    <Settings className="text-gray-400 hover:text-gray-600 cursor-pointer" />
                                 </div>
                             </div>
                         </div>
@@ -360,8 +459,8 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                         <div className="flex items-center space-x-3 text-white">
                                             <MessageCircle />
                                             <div>
-                                                <h2 className="font-semibold">Assistant IA Templates</h2>
-                                                <p className="text-purple-100 text-sm">Créez votre site en quelques minutes</p>
+                                                <h2 className="font-semibold">Assistant IA avec Code Réel</h2>
+                                                <p className="text-purple-100 text-sm">Génération et prévisualisation en temps réel</p>
                                             </div>
                                         </div>
                                     </div>
@@ -377,32 +476,27 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                                         : 'bg-gray-100 text-gray-800'
                                                 }`}>
                                                     <div className="whitespace-pre-line">{message.content}</div>
-                                                    {message.showGenerateButton && message.detectedType && (
+                                                    {message.showGenerateButton && (
                                                         <button
-                                                            onClick={() => generateTemplate(message.detectedType, message.sections)}
+                                                            onClick={() => generateRealTemplate(message.detectedType, message.userRequest)}
                                                             className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 disabled:opacity-50"
-                                                            disabled={isGenerating}
+                                                            disabled={isGeneratingCode}
                                                         >
-                                                            {isGenerating ? (
+                                                            {isGeneratingCode ? (
                                                                 <>
                                                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                                                    <span>Génération en cours...</span>
+                                                                    <span>Génération du code...</span>
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <Zap />
-                                                                    <span>Générer Template</span>
+                                                                    <span>Générer le Template</span>
                                                                 </>
                                                             )}
                                                         </button>
                                                     )}
-                                                    <div className="text-xs opacity-70 mt-2 flex items-center space-x-2">
-                                                        <span>{message.timestamp.toLocaleTimeString()}</span>
-                                                        {message.modelUsed && (
-                                                            <span className="bg-black bg-opacity-10 px-2 py-1 rounded text-xs">
-                                                                {message.modelUsed}
-                                                            </span>
-                                                        )}
+                                                    <div className="text-xs opacity-70 mt-2">
+                                                        {message.timestamp.toLocaleTimeString()}
                                                     </div>
                                                 </div>
                                             </div>
@@ -412,7 +506,7 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                             <div className="flex justify-start">
                                                 <div className="bg-gray-100 text-gray-800 px-4 py-3 rounded-lg flex items-center space-x-3">
                                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
-                                                    <span>L'IA génère votre réponse...</span>
+                                                    <span>L'IA analyse votre demande...</span>
                                                 </div>
                                             </div>
                                         )}
@@ -425,13 +519,13 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                                 value={inputMessage}
                                                 onChange={(e) => setInputMessage(e.target.value)}
                                                 onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                                                placeholder="Décrivez le site que vous voulez créer..."
+                                                placeholder="Ex: Crée un site pour mon restaurant italien avec menu et réservations"
                                                 className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                disabled={isGenerating}
+                                                disabled={isGenerating || isGeneratingCode}
                                             />
                                             <button
                                                 onClick={handleSendMessage}
-                                                disabled={!inputMessage.trim() || isGenerating}
+                                                disabled={!inputMessage.trim() || isGenerating || isGeneratingCode}
                                                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
                                                 Envoyer
@@ -444,32 +538,11 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                             {/* Sidebar */}
                             <div className="space-y-6">
                                 
-                                {/* Types de Templates */}
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
-                                        <Palette />
-                                        <span>Types de Templates</span>
-                                    </h3>
-                                    <div className="space-y-3">
-                                        {Object.entries(templateTypes).map(([key, template]) => (
-                                            <div key={key} className="p-3 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all cursor-pointer">
-                                                <div className="flex items-center space-x-3">
-                                                    <span className="text-2xl">{template.icon}</span>
-                                                    <div>
-                                                        <div className="font-medium text-gray-900">{template.name}</div>
-                                                        <div className="text-sm text-gray-500">{template.description}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
                                 {/* Templates Générés */}
                                 <div className="bg-white rounded-xl shadow-lg p-6">
                                     <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
                                         <Code />
-                                        <span>Templates Générés</span>
+                                        <span>Templates Créés</span>
                                         {generatedTemplates.length > 0 && (
                                             <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                                                 {generatedTemplates.length}
@@ -477,18 +550,18 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                         )}
                                     </h3>
                                     
-                                    {isGenerating && generatedTemplates.length === 0 && (
+                                    {isGeneratingCode && (
                                         <div className="text-center py-6">
-                                            <div className="template-loading h-20 rounded-lg mb-3"></div>
-                                            <p className="text-sm text-gray-600">Génération en cours...</p>
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                                            <p className="text-sm text-gray-600">L'IA génère votre code...</p>
                                         </div>
                                     )}
                                     
-                                    {generatedTemplates.length === 0 && !isGenerating ? (
+                                    {generatedTemplates.length === 0 && !isGeneratingCode ? (
                                         <div className="text-center py-8 text-gray-500">
-                                            <div className="text-4xl mb-2">📝</div>
-                                            <p>Aucun template généré</p>
-                                            <p className="text-sm">Commencez par décrire votre projet</p>
+                                            <div className="text-4xl mb-2">🎨</div>
+                                            <p>Aucun template créé</p>
+                                            <p className="text-sm">Décrivez votre projet pour commencer</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-3">
@@ -503,24 +576,22 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                                             {template.status}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm text-gray-600 mb-2">{template.preview}</p>
+                                                    <p className="text-sm text-gray-600 mb-3 italic">"{template.userRequest}"</p>
                                                     <div className="text-xs text-gray-500 mb-3">
-                                                        <span>Créé le {template.createdAt.toLocaleDateString()}</span>
-                                                        {template.size && <span> • {template.size}</span>}
+                                                        Créé le {template.createdAt.toLocaleDateString()} à {template.createdAt.toLocaleTimeString()}
                                                     </div>
                                                     <div className="flex space-x-2">
                                                         <button 
                                                             className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50 transition-colors"
-                                                            onClick={() => alert('Fonctionnalité de prévisualisation en développement')}
+                                                            onClick={() => setPreviewModal(template)}
                                                         >
                                                             <Eye />
-                                                            <span>Voir</span>
+                                                            <span>Prévisualiser</span>
                                                         </button>
                                                         <button 
                                                             className="flex items-center space-x-1 text-green-600 hover:text-green-800 text-sm px-2 py-1 rounded hover:bg-green-50 transition-colors"
                                                             onClick={() => {
-                                                                // Simulation de téléchargement
-                                                                const blob = new Blob([`<!-- Template ${template.name} généré par Agent IA -->\n<!DOCTYPE html>\n<html>\n<head>\n    <title>${template.name}</title>\n</head>\n<body>\n    <h1>Template généré avec succès!</h1>\n    <p>Votre template ${template.type} est prêt.</p>\n</body>\n</html>`], {type: 'text/html'});
+                                                                const blob = new Blob([template.htmlCode], {type: 'text/html'});
                                                                 const url = URL.createObjectURL(blob);
                                                                 const a = document.createElement('a');
                                                                 a.href = url;
@@ -534,13 +605,6 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                                             <Download />
                                                             <span>Télécharger</span>
                                                         </button>
-                                                        <button 
-                                                            className="flex items-center space-x-1 text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                                                            onClick={() => deleteTemplate(template.id)}
-                                                        >
-                                                            <Trash2 />
-                                                            <span>Supprimer</span>
-                                                        </button>
                                                     </div>
                                                 </div>
                                             ))}
@@ -548,45 +612,73 @@ Si l'utilisateur demande la génération d'un template, termine ta réponse par 
                                     )}
                                 </div>
 
-                                {/* Statistiques */}
+                                {/* Guide d'utilisation */}
                                 <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-semibold mb-4">📊 Statistiques</h3>
+                                    <h3 className="text-lg font-semibold mb-4">💡 Guide d'utilisation</h3>
+                                    <div className="space-y-3 text-sm">
+                                        <div className="flex items-start space-x-2">
+                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">1</span>
+                                            <p>Décrivez précisément votre projet (type, style, couleurs, fonctionnalités)</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">2</span>
+                                            <p>L'IA analyse et propose un plan de template</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">3</span>
+                                            <p>Cliquez "Générer" pour créer le code HTML/CSS</p>
+                                        </div>
+                                        <div className="flex items-start space-x-2">
+                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">4</span>
+                                            <p>Prévisualisez et téléchargez votre template</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Exemples de prompts */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-semibold mb-4">✨ Exemples de demandes</h3>
                                     <div className="space-y-3">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">Templates créés</span>
-                                            <span className="font-semibold text-blue-600">{generatedTemplates.length}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">Messages envoyés</span>
-                                            <span className="font-semibold text-green-600">{messages.filter(m => m.type === 'user').length}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">Statut IA</span>
-                                            <span className={`font-semibold ${
-                                                aiStatus === 'online' ? 'text-green-600' : 
-                                                aiStatus === 'thinking' ? 'text-blue-600' : 'text-red-600'
-                                            }`}>
-                                                {aiStatus === 'online' ? '✅ Opérationnel' : 
-                                                 aiStatus === 'thinking' ? '🔄 En cours' : '❌ Erreur'}
-                                            </span>
-                                        </div>
+                                        {[
+                                            "Site pour restaurant italien moderne avec menu et réservations",
+                                            "Portfolio de photographe minimaliste en noir et blanc",
+                                            "Boutique en ligne pour vêtements vintage colorés",
+                                            "Site d'entreprise tech avec animations fluides",
+                                            "Blog culinaire avec recettes et photos appétissantes"
+                                        ].map((example, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => setInputMessage(example)}
+                                                className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm transition-colors"
+                                            >
+                                                💬 "{example}"
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Loading overlay pour la génération */}
-                    {isGenerating && (
+                    {/* Modal de prévisualisation */}
+                    {previewModal && (
+                        <PreviewModal 
+                            template={previewModal} 
+                            onClose={() => setPreviewModal(null)} 
+                        />
+                    )}
+
+                    {/* Loading overlay pour la génération de code */}
+                    {isGeneratingCode && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                             <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <h3 className="text-lg font-semibold mb-2">Génération en cours...</h3>
+                                <h3 className="text-lg font-semibold mb-2">🤖 IA en action...</h3>
                                 <p className="text-gray-600">
-                                    Création de votre template personnalisé
+                                    Génération du code HTML/CSS personnalisé
                                 </p>
-                                <div className="mt-4 bg-gray-200 rounded-full h-2">
-                                    <div className="bg-blue-600 h-2 rounded-full template-loading"></div>
+                                <div className="mt-4 text-sm text-gray-500">
+                                    Cela peut prendre 10-30 secondes
                                 </div>
                             </div>
                         </div>
