@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Agent IA Template – Dashboard Pro</title>
 
-  <!-- React + Babel CDN -->
+  <!-- React + Babel CDN (pas de build nécessaire) -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
+    /* ------- RESET + LAYOUT ------- */
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333}
-    .app-container{display:flex;height:100vh;overflow:hidden}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333}.app-container{display:flex;height:100vh;overflow:hidden}
     .sidebar{width:400px;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;box-shadow:2px 0 20px rgba(0,0,0,.1)}
     .sidebar-header{padding:25px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-bottom:1px solid rgba(255,255,255,.1)}
     .sidebar-header h1{font-size:1.5rem;font-weight:700;margin-bottom:8px}
@@ -120,7 +120,7 @@
         apiStatus === 'working' ? await generateWithAI(inputMessage) : generateTestTemplate(inputMessage);
       };
 
-      /* –––––  génération IA ––––– */
+      /* –––––  génération IA ultra-exigeante ––––– */
       const generateWithAI = async (userInput) => {
         setIsGenerating(true);
         try {
@@ -129,7 +129,17 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               message: 'Crée un site haut-de-gamme et interactif pour : ' + userInput,
-              systemPrompt: 'Crée un template HTML COMPLET et COMPACT. IMPORTANT: Code CSS minifié (pas de sauts de ligne), HTML concis mais fonctionnel, Pas de commentaires, Priorité : que le HTML soit COMPLET jusqu’à </html>. Si tu manques de place simplifie le design mais TERMINE le fichier. Réponds UNIQUEMENT avec le code HTML complet et valide.'
+              systemPrompt: `
+Return ONLY a single, valid, complete HTML file (DOCTYPE → </html>) respecting :
+1. Premium design : modern typography, glassmorphism, smooth animations.
+2. Interactive : burger menu, vanilla carousel, validated form, dark/light switch.
+3. Responsive : mobile-first, 320 px → 4 K.
+4. No external links : CSS/JS inline, fonts via @font-face or system stack.
+5. Accessibility : semantic tags, aria-labels, WCAG 2.1.
+6. SEO : meta, Open-Graph, JSON-LD.
+7. Performance : inline critical CSS, lazy images, no comment.
+End with </html>, no markdown fences.
+`
             })
           });
           if (!res.ok) throw new Error('Erreur IA');
@@ -137,15 +147,13 @@
             .replace(/```html\n?/g, '')
             .replace(/```\n?/g, '')
             .trim();
-          if (!html.includes('</html>')) {
-            html += '</body></html>';
-          }
+          if (!html.includes('</html>')) html += '</body></html>';
           if (!html.includes('<!DOCTYPE')) {
             html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template</title></head><body>' + html + '</body></html>';
           }
           const template = createTemplate(userInput, html, 'ai');
           setCurrentTemplate(template);
-          setMessages(prev => [...prev, { id: Date.now(), type: 'agent', content: 'Template IA généré ! Visible dans la prévisualisation plein écran' }]);
+          setMessages(prev => [...prev, { id: Date.now(), type: 'agent', content: '✨ Template premium généré ! Prévisualisation disponible.' }]);
         } catch (error) {
           console.error('Erreur IA:', error);
           generateTestTemplate(userInput);
@@ -163,7 +171,7 @@
 
       const createTestHTML = (input) => {
         const type = detectType(input);
-        return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template ${type}</title><style>:root{--p:#2c3e50;--a:#e74c3c}body{margin:0;font-family:Poppins,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}.container{max-width:1200px;margin:auto;text-align:center;padding:40px 20px}.content{background:rgba(255,255,255,.95);color:var(--p);padding:60px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-top:40px}.card{background:#fff;padding:40px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1);transition:.3s}.card:hover{transform:translateY(-10px)}.card h3{color:var(--a);margin-bottom:15px}</style></head><body><div class="container"><h1>Template ${type.toUpperCase()}</h1><p>Demande : ${input}</p><div class="content"><h2>Template Professionnel</h2><div class="grid"><div class="card"><h3>Design Premium</h3><p>Animations fluides & design responsive.</p></div><div class="card"><h3>Performance</h3><p>Code optimisé & UX exceptionnelle.</p></div><div class="card"><h3>Multi-device</h3><p>Adapté mobiles, tablettes & desktop.</p></div></div></div></div></body></html>`;
+        return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template ${type}</title><style>@font-face{font-family:Poppins;src:url(data:font/woff2;base64,...) format('woff2');font-display:swap}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Poppins,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}.container{max-width:1200px;margin:auto;text-align:center;padding:40px 20px}.content{background:rgba(255,255,255,.95);color:#2c3e50;padding:60px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-top:40px}.card{background:#fff;padding:40px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1);transition:.3s}.card:hover{transform:translateY(-10px)}.card h3{color:#e74c3c;margin-bottom:15px}</style></head><body><div class="container"><h1>Template ${type.toUpperCase()}</h1><p>Demande : ${input}</p><div class="content"><h2>Template Professionnel</h2><div class="grid"><div class="card"><h3>Design Premium</h3><p>Animations fluides & design responsive.</p></div><div class="card"><h3>Performance</h3><p>Code optimisé & UX exceptionnelle.</p></div><div class="card"><h3>Multi-device</h3><p>Adapté mobiles, tablettes & desktop.</p></div></div></div></div></body></html>`;
       };
 
       const detectType = (input) => {
@@ -205,7 +213,6 @@
         URL.revokeObjectURL(url);
       };
 
-      /* –––––  rendu ––––– */
       return (
         React.createElement('div', { className: 'app-container' },
           React.createElement('div', { className: 'sidebar' },
