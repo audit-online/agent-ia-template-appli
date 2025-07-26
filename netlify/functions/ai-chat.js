@@ -196,15 +196,3 @@ exports.handler = async (event, context) => {
     };
   }
 };
-
-// Fonctions d'analyse simplifiées
-function analyzeUserRequest(message) {
-  return {
-    type: 'general',
-    recommendations: {
-      sections: ['header', 'hero', 'about', 'contact'],
-      colors: ['#6B7280', '#3B82F6', '#10B981'],
-      features: ['Présentation', 'Services', 'Contact']
-    }
-  };
-}

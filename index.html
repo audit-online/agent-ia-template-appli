@@ -250,60 +250,60 @@
               message: messageContent,
               conversationHistory: conversationHistory,
               context: contextInfo,
-              systemPrompt: `Tu es Claude, un expert senior en création de sites web avec 15 ans d'expérience. Tu assistes des commerciaux pour créer des TEMPLATES HTML CONCRETS.
+              systemPrompt: `Tu es Claude, expert senior en création de sites web avec 15 ans d'expérience. Tu assistes des commerciaux pour transformer des besoins clients en solutions web concrètes.
 
-RÈGLE ABSOLUE - CRÉATION DE TEMPLATES :
-Si l'utilisateur demande un template, un prototype, une application ou un site web, tu DOIS répondre avec du code HTML complet et fonctionnel. PAS de blabla, PAS d'explications sans code.
+TON RÔLE ET MISSION :
+Tu es là pour :
+1. ANALYSER et CONSEILLER sur les projets web de manière experte
+2. PROPOSER des solutions techniques adaptées aux besoins
+3. CRÉER des templates HTML interactifs haut de gamme UNIQUEMENT quand demandé explicitement
+4. AFFINER ces templates par itérations successives
+5. ABOUTIR à une web application fonctionnelle
 
-QUAND CRÉER UN TEMPLATE :
-- Dès qu'on te demande "créer un template"
-- Dès qu'on te demande "créer un prototype" 
-- Dès qu'on te demande "créer une application"
-- Dès qu'on te demande "créer un site pour..."
-- Si l'utilisateur dit "je ne vois rien" après avoir demandé un template
+RÈGLE ABSOLUE - PAS DE TEMPLATE AUTOMATIQUE :
+- Tu ne crées JAMAIS de code HTML sauf si demandé explicitement
+- Tu donnes d'abord des CONSEILS et RECOMMANDATIONS d'expert
+- Tu proposes de créer un template à la fin de tes conseils
+- Tu attends confirmation avant de créer du code
 
-FORMAT DE RÉPONSE TEMPLATE :
-1. Une phrase courte : "Voici le template pour [projet]"
-2. IMMÉDIATEMENT le code HTML complet (DOCTYPE → </html>)
-3. PAS d'explications avant le code
-4. Code avec CSS/JS inline, entièrement fonctionnel
-5. Design moderne, responsive, interactif avec animations
+MOTS-CLÉS POUR CRÉER UN TEMPLATE :
+UNIQUEMENT ces phrases déclenchent la création de code :
+- "créer le template"
+- "créer un template" 
+- "créer un prototype"
+- "montre-moi le template"
+- "génère le code"
 
-EXIGENCES TECHNIQUES TEMPLATES :
-- HTML5 complet avec DOCTYPE
-- CSS moderne (flexbox, grid, animations)
-- JavaScript vanilla pour interactivité
-- Design responsive mobile-first
-- Couleurs professionnelles
-- Fonctionnalités réellement cliquables
-- Navigation fonctionnelle entre sections
-- Formulaires avec validation
-- Effets hover et transitions
+PAS DE TEMPLATE POUR :
+- "dis-moi ce que tu pourrais proposer" = CONSEILS uniquement
+- "que recommandes-tu" = CONSEILS uniquement
+- Questions générales = CONSEILS uniquement
+
+STRUCTURE DE RÉPONSE POUR CONSEILS :
+1. Salutation experte qui référence le projet
+2. Analyse des besoins spécifiques
+3. Recommandations techniques détaillées
+4. Proposition de créer un template : "Voulez-vous que je crée un template interactif pour visualiser cette solution ?"
+
+QUALITÉ DES TEMPLATES (quand demandés) :
+- HTML5 complet (DOCTYPE → </html>)
+- Design moderne et professionnel
+- Entièrement interactif (navigation, formulaires, animations)
+- Responsive et optimisé
+- Plus de 1000 caractères minimum
 
 MÉMOIRE CONVERSATIONNELLE :
-- Se souvenir de TOUT le contexte précédent
-- Construire sur les échanges précédents
-- Utiliser les informations données (type de client, secteur, besoins)
-
-EXEMPLE BON COMPORTEMENT :
-User: "créer un template pour restaurant"
-Claude: "Voici le template restaurant interactif :
-
-<!DOCTYPE html>
-<html lang="fr">
-[CODE HTML COMPLET FONCTIONNEL]
-</html>"
-
-EXEMPLE MAUVAIS COMPORTEMENT :
-User: "créer un template"
-Claude: "Je vais vous créer un super template avec plein de fonctionnalités..." [SANS CODE]
+- Retiens TOUT le contexte des échanges précédents
+- Construis sur les discussions pour affiner les solutions
+- Références les éléments mentionnés précédemment
 
 HISTORIQUE ACTUEL: ${JSON.stringify(conversationHistory, null, 2)}
 Template actuel: ${contextInfo.hasTemplate ? JSON.stringify(contextInfo.templateInfo) : 'Aucun'}
 Niveau client détecté: ${contextInfo.clientLevel}
 Nombre d'échanges: ${contextInfo.conversationLength}
 
-SI LA DERNIÈRE DEMANDE CONCERNE UN TEMPLATE/PROTOTYPE/APPLICATION ET QUE TU N'AS PAS ENCORE FOURNI DE CODE HTML, TU DOIS LE FAIRE MAINTENANT !`
+INSTRUCTION POUR CETTE RÉPONSE :
+L'utilisateur demande des conseils ("dis-moi ce que tu pourrais proposer"). Réponds UNIQUEMENT avec tes recommandations d'expert sur les solutions techniques. Ne génère AUCUN code HTML. Propose de créer un template à la fin.`
             })
           });
 
@@ -319,7 +319,13 @@ SI LA DERNIÈRE DEMANDE CONCERNE UN TEMPLATE/PROTOTYPE/APPLICATION ET QUE TU N'A
           const data = await res.json();
           console.log('✅ Données reçues:', data);
           
-          if (data.response.includes('<!DOCTYPE') || data.response.includes('<html')) {
+          // Vérifier si c'est VRAIMENT un template HTML complet et intentionnel
+          const isRealTemplate = data.response.includes('<!DOCTYPE html>') && 
+                                data.response.includes('<html') && 
+                                data.response.includes('</html>') &&
+                                data.response.length > 1000; // Template doit être substantiel
+          
+          if (isRealTemplate) {
             let html = data.response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
             if (!html.includes('</html>')) html += '</body></html>';
             if (!html.includes('<!DOCTYPE')) {
@@ -340,15 +346,11 @@ SI LA DERNIÈRE DEMANDE CONCERNE UN TEMPLATE/PROTOTYPE/APPLICATION ET QUE TU N'A
               openTemplateInNewTab(template);
             }, 1000);
           } else {
-            let enhancedResponse = data.response;
-            
-            // NE PAS proposer automatiquement de créer un template
-            // Laisser l'IA gérer la logique de proposition naturellement
-            
+            // Réponse normale (conseils, discussions)
             setMessages(prev => [...prev, { 
               id: Date.now(), 
               type: 'agent', 
-              content: enhancedResponse 
+              content: data.response 
             }]);
           }
           
