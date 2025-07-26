@@ -1,6 +1,8 @@
-// netlify/functions/ai-chat.js - Version avec plus de tokens et mémoire complète
+// netlify/functions/ai-chat.js - Version avec debugging amélioré
 exports.handler = async (event, context) => {
   console.log('🚀 Fonction ai-chat appelée');
+  console.log('📝 Headers:', JSON.stringify(event.headers, null, 2));
+  console.log('📦 Body:', event.body);
 
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -19,7 +21,8 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ 
         message: 'Fonction ai-chat opérationnelle!',
         timestamp: new Date().toISOString(),
-        hasAnthropicKey: !!process.env.ANTHROPIC_KEY
+        hasAnthropicKey: !!process.env.ANTHROPIC_KEY,
+        keyLength: process.env.ANTHROPIC_KEY ? process.env.ANTHROPIC_KEY.length : 0
       })
     };
   }
@@ -34,17 +37,34 @@ exports.handler = async (event, context) => {
 
   try {
     if (!process.env.ANTHROPIC_KEY) {
+      console.error('❌ ANTHROPIC_KEY manquante');
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Configuration manquante',
-          details: 'ANTHROPIC_KEY non définie'
+          details: 'ANTHROPIC_KEY non définie',
+          help: 'Vérifiez les variables d\'environnement Netlify'
         })
       };
     }
 
-    const { message, systemPrompt, conversationHistory, context } = JSON.parse(event.body || '{}');
+    let requestData;
+    try {
+      requestData = JSON.parse(event.body || '{}');
+    } catch (parseError) {
+      console.error('❌ Erreur parsing JSON:', parseError);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          error: 'JSON invalide',
+          details: parseError.message
+        })
+      };
+    }
+
+    const { message, systemPrompt, conversationHistory, context } = requestData;
     
     if (!message) {
       return {
@@ -53,6 +73,9 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ error: 'Message requis' })
       };
     }
+
+    console.log('📨 Message reçu:', message.substring(0, 100));
+    console.log('💬 Historique longueur:', conversationHistory?.length || 0);
 
     // Liste des modèles à essayer par ordre de préférence
     const modelsToTry = [
@@ -69,6 +92,14 @@ exports.handler = async (event, context) => {
       try {
         console.log(`🔄 Essai du modèle: ${model}`);
         
+        // Construction du prompt plus robuste
+        let finalPrompt;
+        if (conversationHistory && conversationHistory.length > 0) {
+          finalPrompt = `${systemPrompt}\n\nVoici notre conversation complète jusqu'à présent:\n${JSON.stringify(conversationHistory, null, 2)}\n\nRéponds en tenant compte de TOUT cet historique. Ton dernier message doit être cohérent avec tout ce qui a été dit précédemment.`;
+        } else {
+          finalPrompt = `${systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'}\n\nMessage utilisateur: ${message}`;
+        }
+
         const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
@@ -80,20 +111,16 @@ exports.handler = async (event, context) => {
             model: model,
             max_tokens: 8000,
             temperature: 0.8,
-            messages: conversationHistory && conversationHistory.length > 0 ? [
-              {
-                role: 'system',
-                content: systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'
-              },
-              ...conversationHistory
-            ] : [
+            messages: [
               {
                 role: 'user',
-                content: `${systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'}\n\nMessage utilisateur: ${message}`
+                content: finalPrompt
               }
             ]
           })
         });
+
+        console.log(`📡 Réponse Claude status: ${claudeResponse.status}`);
 
         if (claudeResponse.ok) {
           const aiData = await claudeResponse.json();
@@ -126,28 +153,37 @@ exports.handler = async (event, context) => {
       } catch (error) {
         lastError = `${model}: ${error.message}`;
         console.log(`❌ Erreur avec ${model}:`, error.message);
+        console.error('Stack trace:', error.stack);
       }
     }
 
     // Si aucun modèle n'a fonctionné
+    console.error('💥 Tous les modèles ont échoué');
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: 'Tous les modèles Claude ont échoué',
         details: lastError,
-        modelsAttempted: modelsToTry
+        modelsAttempted: modelsToTry,
+        troubleshooting: {
+          step1: 'Vérifiez la clé API Anthropic',
+          step2: 'Vérifiez les logs Netlify',
+          step3: 'Testez avec curl directement'
+        }
       })
     };
 
   } catch (error) {
     console.error('💥 Erreur générale:', error);
+    console.error('Stack trace:', error.stack);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: 'Erreur serveur interne',
-        details: error.message
+        details: error.message,
+        stack: error.stack?.split('\n').slice(0, 3) // Première ligne de la stack
       })
     };
   }

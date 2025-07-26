@@ -94,17 +94,33 @@
         }]);
       }, []);
 
-      /* –––––  test API ––––– */
+      /* –––––  test API avec diagnostic ––––– */
       const testAPI = async () => {
         try {
+          console.log('🔧 Test de l\'API...');
           const r = await fetch('/.netlify/functions/ai-chat', { method: 'GET' });
+          console.log('📡 Statut API:', r.status);
+          
           if (r.ok) {
+            const data = await r.json();
+            console.log('✅ Réponse API:', data);
             setApiStatus('working');
-            setMessages(prev => [...prev, { id: Date.now(), type: 'agent', content: '✅ API Netlify OK – prêt pour Claude.' }]);
-          } else throw new Error('API KO');
-        } catch {
+            setMessages(prev => [...prev, { 
+              id: Date.now(), 
+              type: 'agent', 
+              content: `✅ API Netlify OK – prêt pour Claude.\n🔑 Clé API: ${data.hasAnthropicKey ? 'Configurée' : 'MANQUANTE'}` 
+            }]);
+          } else {
+            throw new Error(`HTTP ${r.status}`);
+          }
+        } catch (error) {
+          console.error('❌ Erreur API:', error);
           setApiStatus('broken');
-          setMessages(prev => [...prev, { id: Date.now(), type: 'agent', content: '❌ API indisponible – mode test activé.' }]);
+          setMessages(prev => [...prev, { 
+            id: Date.now(), 
+            type: 'agent', 
+            content: `❌ API indisponible (${error.message})\n\n🔧 Solutions:\n• Vérifiez les logs Netlify\n• Vérifiez la variable ANTHROPIC_KEY\n• Redéployez le site` 
+          }]);
         }
       };
 
@@ -260,11 +276,21 @@ Nombre d'échanges: ${contextInfo.conversationLength}`
           }
           
         } catch (error) {
-          console.error('Erreur:', error);
+          console.error('❌ Erreur complète:', error);
+          let errorMessage = 'Je rencontre un problème technique. ';
+          
+          if (error.message.includes('500')) {
+            errorMessage += 'Erreur serveur (500) - vérifiez les logs Netlify et la clé API Anthropic.';
+          } else if (error.message.includes('fetch')) {
+            errorMessage += 'Problème de connexion - vérifiez votre réseau.';
+          } else {
+            errorMessage += `Détails: ${error.message}`;
+          }
+          
           setMessages(prev => [...prev, { 
             id: Date.now(), 
             type: 'agent', 
-            content: 'Je rencontre un petit problème technique. Pouvez-vous reformuler ? Je garde bien sûr en mémoire tous nos échanges précédents sur votre projet.' 
+            content: errorMessage + '\n\nJe garde bien sûr en mémoire tous nos échanges précédents sur votre projet.'
           }]);
         } finally {
           setIsGenerating(false);
