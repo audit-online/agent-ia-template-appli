@@ -1,4 +1,4 @@
-// netlify/functions/ai-chat.js - Version robuste
+// netlify/functions/ai-chat.js - Version avec plus de tokens
 exports.handler = async (event, context) => {
   console.log('🚀 Fonction ai-chat appelée');
 
@@ -78,7 +78,8 @@ exports.handler = async (event, context) => {
           },
           body: JSON.stringify({
             model: model,
-            max_tokens: 1000,
+            max_tokens: 8000,  // ← DOUBLÉ pour permettre des templates complets
+            temperature: 0.7,  // ← Ajouté pour plus de créativité
             messages: [
               {
                 role: 'user',
@@ -94,6 +95,7 @@ exports.handler = async (event, context) => {
           const analysis = analyzeUserRequest(message);
 
           console.log(`✅ Succès avec le modèle: ${model}`);
+          console.log(`📏 Longueur de la réponse: ${aiResponse.length} caractères`);
           
           return {
             statusCode: 200,
@@ -104,6 +106,7 @@ exports.handler = async (event, context) => {
               recommendations: analysis.recommendations,
               source: 'claude-api',
               modelUsed: model,
+              responseLength: aiResponse.length,
               timestamp: new Date().toISOString()
             })
           };
