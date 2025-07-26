@@ -178,6 +178,26 @@
         return 'intermédiaire';
       };
 
+      // Fonction pour ouvrir template dans nouvel onglet
+      const openTemplateInNewTab = (template) => {
+        const blob = new Blob([template.htmlCode], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Nettoyer l'URL après 1 seconde
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      };
+
+      // Fonction pour télécharger template
+      const downloadTemplate = (template) => {
+        const blob = new Blob([template.htmlCode], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `template-${template.id}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+
       /* –––––  envoi message INTELLIGENT avec VRAIE mémoire ––––– */
       const handleSendMessage = async () => {
         if (!inputMessage.trim()) return;
@@ -435,24 +455,6 @@ End with </html>, no markdown fences.
           e.preventDefault();
           handleSendMessage();
         }
-      };
-
-      const openTemplateInNewTab = (template) => {
-        const blob = new Blob([template.htmlCode], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        // Nettoyer l'URL après 1 seconde
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      };
-
-      const downloadTemplate = (template) => {
-        const blob = new Blob([template.htmlCode], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `template-${template.id}.html`;
-        a.click();
-        URL.revokeObjectURL(url);
       };
 
       return (
