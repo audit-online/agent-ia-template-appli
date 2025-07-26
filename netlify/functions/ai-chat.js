@@ -1,29 +1,18 @@
-// netlify/functions/ai-chat.js
+// netlify/functions/ai-chat.js - Version robuste
 exports.handler = async (event, context) => {
   console.log('🚀 Fonction ai-chat appelée');
-  console.log('Method:', event.httpMethod);
-  console.log('Headers:', event.headers);
 
-  // Headers CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET'
   };
 
-  // Gérer les requêtes OPTIONS (CORS preflight)
   if (event.httpMethod === 'OPTIONS') {
-    console.log('📋 Requête OPTIONS reçue');
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ message: 'CORS OK' })
-    };
+    return { statusCode: 200, headers, body: JSON.stringify({ message: 'CORS OK' }) };
   }
 
-  // Test GET pour vérifier que la fonction fonctionne
   if (event.httpMethod === 'GET') {
-    console.log('📋 Requête GET de test');
     return {
       statusCode: 200,
       headers,
@@ -35,9 +24,7 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Vérifier la méthode HTTP
   if (event.httpMethod !== 'POST') {
-    console.log('❌ Méthode non autorisée:', event.httpMethod);
     return {
       statusCode: 405,
       headers,
@@ -46,37 +33,18 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('📝 Body reçu:', event.body);
-
-    // Vérifier la clé API
     if (!process.env.ANTHROPIC_KEY) {
-      console.error('❌ ANTHROPIC_KEY non configurée');
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Configuration manquante',
-          details: 'ANTHROPIC_KEY non définie dans les variables d\'environnement Netlify'
+          details: 'ANTHROPIC_KEY non définie'
         })
       };
     }
 
-    console.log('✅ ANTHROPIC_KEY présente');
-
-    // Parser le body
-    let parsedBody;
-    try {
-      parsedBody = JSON.parse(event.body || '{}');
-    } catch (e) {
-      console.error('❌ Erreur parsing JSON:', e);
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: 'JSON invalide' })
-      };
-    }
-
-    const { message, systemPrompt } = parsedBody;
+    const { message, systemPrompt } = JSON.parse(event.body || '{}');
     
     if (!message) {
       return {
@@ -86,74 +54,90 @@ exports.handler = async (event, context) => {
       };
     }
 
-    console.log('📤 Envoi vers Claude API...');
+    // Liste des modèles à essayer par ordre de préférence
+    const modelsToTry = [
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-sonnet-20240620', 
+      'claude-3-sonnet-20240229',
+      'claude-3-haiku-20240307'
+    ];
 
-    // Appel à l'API Claude
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
-        max_tokens: 1000,
-        messages: [
-          {
-            role: 'user',
-            content: `${systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'}\n\nMessage utilisateur: ${message}`
-          }
-        ]
-      })
-    });
+    let lastError = null;
+    
+    // Essayer chaque modèle jusqu'à ce qu'un fonctionne
+    for (const model of modelsToTry) {
+      try {
+        console.log(`🔄 Essai du modèle: ${model}`);
+        
+        const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': process.env.ANTHROPIC_KEY,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: model,
+            max_tokens: 1000,
+            messages: [
+              {
+                role: 'user',
+                content: `${systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'}\n\nMessage utilisateur: ${message}`
+              }
+            ]
+          })
+        });
 
-    console.log('📥 Statut réponse Claude:', claudeResponse.status);
+        if (claudeResponse.ok) {
+          const aiData = await claudeResponse.json();
+          const aiResponse = aiData.content[0].text;
+          const analysis = analyzeUserRequest(message);
 
-    if (!claudeResponse.ok) {
-      const errorText = await claudeResponse.text();
-      console.error('❌ Erreur API Claude:', claudeResponse.status, errorText);
-      return {
-        statusCode: claudeResponse.status,
-        headers,
-        body: JSON.stringify({ 
-          error: `Erreur API Claude: ${claudeResponse.status}`,
-          details: errorText
-        })
-      };
+          console.log(`✅ Succès avec le modèle: ${model}`);
+          
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              response: aiResponse,
+              detectedType: analysis.type,
+              recommendations: analysis.recommendations,
+              source: 'claude-api',
+              modelUsed: model,
+              timestamp: new Date().toISOString()
+            })
+          };
+        } else {
+          const errorText = await claudeResponse.text();
+          lastError = `${model}: ${claudeResponse.status} - ${errorText}`;
+          console.log(`❌ Échec avec ${model}:`, lastError);
+        }
+        
+      } catch (error) {
+        lastError = `${model}: ${error.message}`;
+        console.log(`❌ Erreur avec ${model}:`, error.message);
+      }
     }
 
-    const aiData = await claudeResponse.json();
-    console.log('✅ Réponse Claude reçue');
-
-    const aiResponse = aiData.content[0].text;
-
-    // Analyse intelligente
-    const analysis = analyzeUserRequest(message);
-
-    console.log('🎯 Type détecté:', analysis.type);
-
+    // Si aucun modèle n'a fonctionné
     return {
-      statusCode: 200,
+      statusCode: 500,
       headers,
-      body: JSON.stringify({
-        response: aiResponse,
-        detectedType: analysis.type,
-        recommendations: analysis.recommendations,
-        source: 'claude-api',
-        timestamp: new Date().toISOString()
+      body: JSON.stringify({ 
+        error: 'Tous les modèles Claude ont échoué',
+        details: lastError,
+        modelsAttempted: modelsToTry
       })
     };
 
   } catch (error) {
-    console.error('💥 Erreur dans ai-chat:', error);
+    console.error('💥 Erreur générale:', error);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: 'Erreur serveur interne',
-        details: error.message,
-        stack: error.stack
+        details: error.message
       })
     };
   }
