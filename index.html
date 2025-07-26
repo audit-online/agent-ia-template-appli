@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Agent IA Template – Dashboard Pro</title>
 
-  <!-- React + Babel CDN (pas de build nécessaire) -->
+  <!-- React + Babel CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -128,22 +128,26 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              message: `Crée un site haut-de-gamme et interactif pour : ${userInput}`,
-              systemPrompt: highEndPrompt
+              message: 'Crée un site haut-de-gamme et interactif pour : ' + userInput,
+              systemPrompt: 'Crée un template HTML COMPLET et COMPACT. IMPORTANT: Code CSS minifié (pas de sauts de ligne), HTML concis mais fonctionnel, Pas de commentaires, Priorité : que le HTML soit COMPLET jusqu’à </html>. Si tu manques de place simplifie le design mais TERMINE le fichier. Réponds UNIQUEMENT avec le code HTML complet et valide.'
             })
           });
           if (!res.ok) throw new Error('Erreur IA');
-          const data = await res.json();
-          let html = data.response
+          let html = (await res.json()).response
             .replace(/```html\n?/g, '')
             .replace(/```\n?/g, '')
             .trim();
+          if (!html.includes('</html>')) {
+            html += '</body></html>';
+          }
           if (!html.includes('<!DOCTYPE')) {
-            html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template</title></head><body>${html}</body></html>`;
+            html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template</title></head><body>' + html + '</body></html>';
           }
           const template = createTemplate(userInput, html, 'ai');
           setCurrentTemplate(template);
-        } catch {
+          setMessages(prev => [...prev, { id: Date.now(), type: 'agent', content: 'Template IA généré ! Visible dans la prévisualisation plein écran' }]);
+        } catch (error) {
+          console.error('Erreur IA:', error);
           generateTestTemplate(userInput);
         } finally {
           setIsGenerating(false);
@@ -159,39 +163,7 @@
 
       const createTestHTML = (input) => {
         const type = detectType(input);
-        return `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Template ${type}</title>
-  <style>
-    :root{--p:#2c3e50;--a:#e74c3c;--l:#ecf0f1}
-    body{margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
-    .container{max-width:1200px;margin:auto;text-align:center;padding:40px 20px}
-    h1{font-size:3rem;margin-bottom:10px}
-    .content{background:rgba(255,255,255,.95);color:var(--p);padding:60px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-top:40px}
-    .card{background:#fff;padding:40px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1);transition:.3s}
-    .card:hover{transform:translateY(-10px)}
-    .card h3{color:var(--a);margin-bottom:15px;font-size:1.5rem}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Template ${type.toUpperCase()}</h1>
-    <p>Demande : ${input}</p>
-    <div class="content">
-      <h2>Template Professionnel</h2>
-      <div class="grid">
-        <div class="card"><h3>Design Premium</h3><p>Animations fluides & design responsive.</p></div>
-        <div class="card"><h3>Performance</h3><p>Code optimisé & UX exceptionnelle.</p></div>
-        <div class="card"><h3>Multi-device</h3><p>Adapté mobiles, tablettes & desktop.</p></div>
-      </div>
-    </div>
-  </div>
-</body>
-</html>`;
+        return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Template ${type}</title><style>:root{--p:#2c3e50;--a:#e74c3c}body{margin:0;font-family:Poppins,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}.container{max-width:1200px;margin:auto;text-align:center;padding:40px 20px}.content{background:rgba(255,255,255,.95);color:var(--p);padding:60px;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:30px;margin-top:40px}.card{background:#fff;padding:40px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1);transition:.3s}.card:hover{transform:translateY(-10px)}.card h3{color:var(--a);margin-bottom:15px}</style></head><body><div class="container"><h1>Template ${type.toUpperCase()}</h1><p>Demande : ${input}</p><div class="content"><h2>Template Professionnel</h2><div class="grid"><div class="card"><h3>Design Premium</h3><p>Animations fluides & design responsive.</p></div><div class="card"><h3>Performance</h3><p>Code optimisé & UX exceptionnelle.</p></div><div class="card"><h3>Multi-device</h3><p>Adapté mobiles, tablettes & desktop.</p></div></div></div></div></body></html>`;
       };
 
       const detectType = (input) => {
@@ -311,7 +283,7 @@
               !currentTemplate && React.createElement('div', { className: 'empty-state' },
                 React.createElement('div', { className: 'empty-state-icon' }, '🎨'),
                 React.createElement('h3', null, 'Aucun template sélectionné'),
-                React.createElement('p', null, 'Générez un template avec l’IA ou sélectionnez-en un existant pour le voir ici en plein écran.')
+                React.createElement('p', null, 'Générez un template avec l\'IA ou sélectionnez-en un existant pour le voir ici en plein écran.')
               ),
               currentTemplate && viewMode === 'code' && React.createElement('textarea', {
                 className: 'code-editor',
@@ -322,7 +294,7 @@
               currentTemplate && viewMode === 'preview' && React.createElement('div', { className: 'device-frame' },
                 React.createElement('div', { className: `device ${deviceView}` },
                   React.createElement('iframe', {
-                    key: currentTemplate.id,  // ← force re-render
+                    key: currentTemplate.id,
                     srcDoc: currentTemplate.htmlCode,
                     title: 'Preview'
                   })
@@ -338,28 +310,6 @@
         )
       );
     };
-
-    /* –––––  prompt haute qualité ––––– */
-    const highEndPrompt = `
-Tu es un expert UI/UX et développeur front-end senior.  
-Crée un template **haut-de-gamme, interactif et prêt pour la production** correspondant à la demande de l’utilisateur.
-
-OBLIGATIONS :
-1. **HTML complet** : DOCTYPE, lang, meta (UTF-8, viewport, description, robots), favicon, titre pertinent.  
-2. **CSS moderne** : variables CSS, flexbox/grid, animations fluides (transform/transition), media queries mobiles-first, dark/light mode.  
-3. **JavaScript interactif** :  
-   – menu burger fluide (CSS + JS),  
-   – carousel / slider vanilla,  
-   – formulaire avec validation temps réel,  
-   – scroll-snap ou GSAP si besoin.  
-4. **Accessibilité** : balises sémantiques, aria-labels, contrastes WCAG 2.1, focus visible.  
-5. **Performance** : images lazy-loadées, fonts locales ou Google-Fonts avec swap, pas de librairies externes lourdes.  
-6. **Esthétique premium** : typographie soignée (Poppins / Inter), palette élégante, micro-animations, ombres douces, glassmorphism ou neumorphism si pertinent.  
-7. **Responsive** : impeccable sur mobile, tablette, desktop (>= 320 px).  
-8. **SEO + partage social** : meta og, twitter-cards, JSON-LD.  
-9. **Code sans commentaires et sans balise <script> externe** : tout en inline.  
-
-**Réponds UNIQUEMENT avec le code HTML complet et valide.** Aucun commentaire, aucune explication.`;
 
     ReactDOM.render(React.createElement(App), document.getElementById('root'));
   </script>
