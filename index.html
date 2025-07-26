@@ -90,11 +90,11 @@
       /* –––––  démarrage ––––– */
       useEffect(() => {
         testAPI();
-        setMessages([{
-          id: 1,
-          type: 'agent',
-          content: 'Agent IA Template – Dashboard Pro\n\nDiagnostic en cours…\n\nInterface : dashboard complet + prévisualisation plein écran'
-        }]);
+       setMessages([{
+  id: 1,
+  type: 'agent',
+  content: 'Bonjour ! Je suis votre assistant IA pour la creation de sites web.\n\nJe peux vous aider a:\n- Discuter des besoins de vos clients\n- Vous conseiller sur les meilleures solutions\n- Creer des templates sur mesure\n- Modifier et ameliorer vos projets\n\nComment puis-je vous aider aujourd hui ?'
+}]);
       }, []);
 
       /* –––––  test API ––––– */
@@ -171,25 +171,61 @@ const handleSendMessage = async () => {
   setInputMessage('');
 
   if (apiStatus !== 'working') {
-    generateTestTemplate(messageContent);
+    setMessages(prev => [...prev, { 
+      id: Date.now(), 
+      type: 'agent', 
+      content: 'API non disponible. Activez l API pour discuter avec l IA.' 
+    }]);
     return;
   }
 
-  // Détecter le type de demande
-  const requestType = detectRequestType(messageContent);
-  
-  switch (requestType) {
-    case 'modify':
-      await modifyCurrentTemplate(messageContent);
-      break;
-    case 'template':
-      await generateWithAI(messageContent);
-      break;
-    case 'conversation':
-      await handleConversation(messageContent);
-      break;
+  setIsGenerating(true);
+  try {
+    const res = await fetch('/.netlify/functions/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: messageContent,
+        context: currentTemplate ? 'Template actuel: ' + currentTemplate.name : 'Aucun template selectionne',
+        systemPrompt: 'Tu es un assistant commercial IA specialise dans la creation de sites web. Tu dois aider les commerciaux a assister leurs clients de maniere naturelle et conversationnelle. REGLES: 1) Reponds toujours de maniere humaine et naturelle comme dans une vraie conversation 2) Pose des questions pour mieux comprendre les besoins 3) Donne des conseils professionnels 4) Si le client veut un template, demande des precisions avant de le creer 5) Sois proactif et suggestif 6) IMPORTANT: Ne cree un template QUE si on te le demande explicitement avec "cree le template" ou "genere le site". Sinon, contente-toi de discuter et conseiller.'
+      })
+    });
+    
+    if (!res.ok) throw new Error('Erreur IA');
+    const data = await res.json();
+    
+    // Si la reponse contient du HTML, c'est un template
+    if (data.response.includes('<!DOCTYPE') || data.response.includes('<html')) {
+      let html = data.response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
+      if (!html.includes('</html>')) html += '</body></html>';
+      const template = createTemplate(messageContent, html, 'ai');
+      setCurrentTemplate(template);
+      
+      setMessages(prev => [...prev, { 
+        id: Date.now(), 
+        type: 'agent', 
+        content: 'Perfect ! J ai cree le template selon vos specifications. Vous pouvez le voir dans la previsualisation. Voulez-vous des modifications ?' 
+      }]);
+    } else {
+      // Reponse conversationnelle normale
+      setMessages(prev => [...prev, { 
+        id: Date.now(), 
+        type: 'agent', 
+        content: data.response 
+      }]);
+    }
+    
+  } catch (error) {
+    setMessages(prev => [...prev, { 
+      id: Date.now(), 
+      type: 'agent', 
+      content: 'Desole, j ai un petit probleme technique. Pouvez-vous reformuler votre demande ?' 
+    }]);
+  } finally {
+    setIsGenerating(false);
   }
 };
+
 
 /* –––––  NOUVEAU : détection des demandes de modification ––––– */
 const isModificationRequest = (message) => {
