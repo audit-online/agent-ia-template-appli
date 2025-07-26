@@ -11,10 +11,10 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    /* ------- RESET + LAYOUT ------- */
+    /* ------- RESET + LAYOUT AMÉLIORÉ ------- */
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333}.app-container{display:flex;height:100vh;overflow:hidden}
-    .sidebar{width:400px;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;box-shadow:2px 0 20px rgba(0,0,0,.1)}
+    .sidebar{width:60%;max-width:800px;min-width:600px;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;box-shadow:2px 0 20px rgba(0,0,0,.1)}
     .sidebar-header{padding:25px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-bottom:1px solid rgba(255,255,255,.1)}
     .sidebar-header h1{font-size:1.5rem;font-weight:700;margin-bottom:8px}
     .sidebar-header p{opacity:.9;font-size:.9rem}
@@ -22,54 +22,50 @@
     .status-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
     .chat-section{flex:1;display:flex;flex-direction:column;min-height:0}
-    .chat-messages{flex:1;overflow-y:auto;padding:20px;background:#f8fafc}
-    .message{margin-bottom:15px;padding:15px;border-radius:12px;max-width:90%;word-wrap:break-word}
+    .chat-messages{flex:1;overflow-y:auto;padding:25px;background:#f8fafc;font-size:15px;line-height:1.6}
+    .message{margin-bottom:20px;padding:20px;border-radius:12px;max-width:95%;word-wrap:break-word}
     .message.user{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;margin-left:auto;box-shadow:0 4px 12px rgba(102,126,234,.3)}
     .message.agent{background:#fff;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-    .input-area{padding:20px;background:#fff;border-top:1px solid #e5e7eb}
-    .input-group{display:flex;gap:12px;align-items:end}
+    .input-area{padding:25px;background:#fff;border-top:1px solid #e5e7eb}
+    .input-group{display:flex;gap:15px;align-items:end}
     .input-wrapper{flex:1;position:relative}
-    .input-wrapper textarea{width:100%;min-height:44px;max-height:120px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:14px;font-family:inherit;resize:none;transition:all .2s}
+    .input-wrapper textarea{width:100%;min-height:60px;max-height:150px;padding:15px 20px;border:2px solid #e5e7eb;border-radius:12px;font-size:15px;font-family:inherit;resize:none;transition:all .2s;line-height:1.5}
     .input-wrapper textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
-    .btn{padding:12px 24px;border:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+    .btn{padding:15px 30px;border:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:15px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
     .btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 4px 12px rgba(102,126,234,.3)}
     .btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4)}
     .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-    .templates-section{border-top:1px solid #e5e7eb;background:#f8fafc;max-height:300px;overflow-y:auto}
-    .templates-header{padding:15px 20px;background:#fff;border-bottom:1px solid #e5e7eb;font-weight:600;color:#374151}
-    .template-item{padding:15px 20px;border-bottom:1px solid #e5e7eb;background:#fff;transition:all .2s;cursor:pointer}
+    .templates-section{border-top:1px solid #e5e7eb;background:#f8fafc;max-height:250px;overflow-y:auto}
+    .templates-header{padding:20px;background:#fff;border-bottom:1px solid #e5e7eb;font-weight:600;color:#374151;font-size:16px}
+    .template-item{padding:20px;border-bottom:1px solid #e5e7eb;background:#fff;transition:all .2s;cursor:pointer}
     .template-item:hover{background:#f3f4f6}
-    .template-name{font-weight:600;color:#111827;margin-bottom:4px}
-    .template-meta{font-size:12px;color:#6b7280}
-    .template-actions{display:flex;gap:8px;margin-top:10px}
-    .btn-small{padding:6px 12px;font-size:12px;border-radius:8px}
+    .template-name{font-weight:600;color:#111827;margin-bottom:8px;font-size:14px}
+    .template-meta{font-size:12px;color:#6b7280;margin-bottom:12px}
+    .template-actions{display:flex;gap:10px}
+    .btn-small{padding:8px 16px;font-size:12px;border-radius:8px}
     .btn-outline{background:transparent;border:1px solid #d1d5db;color:#374151}
     .btn-outline:hover{background:#f3f4f6;border-color:#9ca3af}
-    .main-content{flex:1;display:flex;flex-direction:column;background:#fff;position:relative}
+    .btn-preview{background:#10b981;color:#fff;border:none}
+    .btn-preview:hover{background:#059669}
+    .main-content{flex:1;display:flex;flex-direction:column;background:#fff;position:relative;min-width:300px}
     .main-header{padding:20px 30px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-    .main-title{font-size:1.5rem;font-weight:700;color:#111827}
+    .main-title{font-size:1.3rem;font-weight:700;color:#111827}
     .main-controls{display:flex;gap:12px;align-items:center}
-    .view-toggle{display:flex;background:#f3f4f6;border-radius:10px;padding:4px}
-    .view-toggle button{padding:8px 16px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s}
-    .view-toggle button.active{background:#fff;color:#667eea;box-shadow:0 2px 4px rgba(0,0,0,.1)}
-    .preview-area{flex:1;position:relative;overflow:hidden}
-    .preview-iframe{width:100%;height:100%;border:none;background:#fff}
+    .preview-area{flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
     .empty-state{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;color:#6b7280;text-align:center;padding:40px}
-    .empty-state-icon{font-size:4rem;margin-bottom:20px;opacity:.5}
-    .empty-state h3{font-size:1.5rem;margin-bottom:10px;color:#374151}
-    .empty-state p{font-size:1rem;line-height:1.6}
-    .code-editor{width:100%;height:100%;border:none;background:#1e1e1e;color:#d4d4d4;font-family:'Monaco','Menlo','Ubuntu Mono',monospace;font-size:14px;padding:20px;resize:none;outline:none}
+    .empty-state-icon{font-size:5rem;margin-bottom:25px;opacity:.6}
+    .empty-state h3{font-size:1.8rem;margin-bottom:15px;color:#374151}
+    .empty-state p{font-size:1.1rem;line-height:1.6;margin-bottom:25px}
+    .empty-state .btn{margin-top:15px}
+    .template-preview-card{background:#fff;border-radius:15px;box-shadow:0 10px 40px rgba(0,0,0,.1);padding:30px;max-width:400px;text-align:center}
+    .template-preview-card h4{font-size:1.3rem;color:#111827;margin-bottom:15px}
+    .template-preview-card p{color:#6b7280;margin-bottom:25px;line-height:1.6}
     .loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10}
     .spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
-    .device-frame{padding:20px;background:#f8fafc;height:100%;display:flex;justify-content:center;align-items:flex-start;overflow:auto}
-    .device{background:#333;border-radius:25px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
-    .device.desktop{width:90%;max-width:1200px;aspect-ratio:16/10}
-    .device.tablet{width:400px;aspect-ratio:4/3}
-    .device.mobile{width:280px;aspect-ratio:9/16}
-    .device iframe{width:100%;height:100%;border:none;border-radius:15px;background:#fff}
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-    @media(max-width:1024px){.sidebar{width:350px}}
-    @media(max-width:768px){.app-container{flex-direction:column}.sidebar{width:100%;height:50vh}}
+    @media(max-width:1200px){.sidebar{width:65%;min-width:500px}}
+    @media(max-width:900px){.sidebar{width:100%;min-width:auto}.main-content{display:none}}
+    @media(max-width:768px){.app-container{flex-direction:column}.sidebar{width:100%;height:100vh}.main-content{display:none}}
   </style>
 </head>
 <body>
@@ -126,30 +122,30 @@
         };
       };
 
-      // Detecter le niveau d'expertise du client
-      const detectClientLevel = (conversationHistory) => {
-        const techTerms = ['responsive', 'seo', 'ux', 'ui', 'cms', 'api', 'ssl'];
-        const basicTerms = ['simple', 'facile', 'basique', 'je ne sais pas'];
+      // Detecter le niveau d'expertise du client avec historique complet
+      const detectClientLevel = (fullConversation) => {
+        const techTerms = ['responsive', 'seo', 'ux', 'ui', 'cms', 'api', 'ssl', 'framework', 'bootstrap', 'javascript', 'css', 'html'];
+        const basicTerms = ['simple', 'facile', 'basique', 'je ne sais pas', 'débutant', 'pas technique', 'aidez-moi'];
         
-        const allText = conversationHistory.map(msg => msg.content).join(' ').toLowerCase();
+        const allText = fullConversation.map(msg => msg.content).join(' ').toLowerCase();
         const techScore = techTerms.reduce((score, term) => allText.includes(term) ? score + 1 : score, 0);
         const basicScore = basicTerms.reduce((score, term) => allText.includes(term) ? score + 1 : score, 0);
         
-        if (techScore > basicScore) return 'expert';
-        if (basicScore > techScore) return 'débutant';
+        if (techScore > basicScore && techScore >= 2) return 'expert';
+        if (basicScore > techScore && basicScore >= 1) return 'débutant';
         return 'intermédiaire';
       };
 
-      /* –––––  envoi message INTELLIGENT ––––– */
+      /* –––––  envoi message INTELLIGENT avec VRAIE mémoire ––––– */
       const handleSendMessage = async () => {
         if (!inputMessage.trim()) return;
+        
         const userMessage = { id: Date.now(), type: 'user', content: inputMessage };
-        setMessages(prev => [...prev, userMessage]);
         const messageContent = inputMessage;
         setInputMessage('');
 
         if (apiStatus !== 'working') {
-          setMessages(prev => [...prev, { 
+          setMessages(prev => [...prev, userMessage, { 
             id: Date.now(), 
             type: 'agent', 
             content: 'API non disponible. Activez l\'API pour discuter avec l\'IA.' 
@@ -157,17 +153,21 @@
           return;
         }
 
+        // Ajouter le message utilisateur AVANT de commencer
+        setMessages(prev => [...prev, userMessage]);
         setIsGenerating(true);
+
         try {
-          const conversationHistory = messages.map(msg => ({
-            role: msg.type === 'user' ? 'user' : 'assistant',
-            content: msg.content
-          }));
+          // Construire l'historique COMPLET incluant le nouveau message
+          const fullConversation = [...messages, userMessage];
           
-          conversationHistory.push({
-            role: 'user',
-            content: messageContent
-          });
+          // Convertir en format Claude en filtrant le message d'accueil système
+          const conversationHistory = fullConversation
+            .filter(msg => msg.id !== 1) // Filtrer le message d'accueil initial
+            .map(msg => ({
+              role: msg.type === 'user' ? 'user' : 'assistant', 
+              content: msg.content
+            }));
 
           const contextInfo = {
             hasTemplate: !!currentTemplate,
@@ -178,7 +178,7 @@
             } : null,
             conversationLength: conversationHistory.length,
             userSentiment: analyzeSentiment(messageContent),
-            clientLevel: detectClientLevel(conversationHistory)
+            clientLevel: detectClientLevel(fullConversation)
           };
 
           const res = await fetch('/.netlify/functions/ai-chat', {
@@ -190,40 +190,34 @@
               context: contextInfo,
               systemPrompt: `Tu es Claude, un expert senior en création de sites web avec 15 ans d'expérience. Tu assistes des commerciaux pour conseiller leurs clients de manière experte et naturelle.
 
+MÉMOIRE CONVERSATIONNELLE CRITIQUE:
+- Tu DOIS te souvenir de TOUT ce qui a été dit dans cette conversation
+- Fais TOUJOURS référence aux éléments mentionnés précédemment
+- Si l'utilisateur a mentionné un type de client/projet, UTILISE ces informations dans tes réponses
+- Construis sur chaque échange précédent pour approfondir la discussion
+- Ne répète JAMAIS les mêmes questions déjà posées
+
 PERSONNALITÉ ET STYLE:
 - Parle comme un vrai expert: confiant, précis, avec du vocabulaire technique approprié
 - Sois chaleureux mais professionnel, comme un consultant senior
-- Utilise des expressions naturelles: "Excellente question", "Je recommande vivement", "Dans mon expérience"
-- Donne des conseils précis et actionnables
-- Montre ton expertise avec des détails techniques pertinents
+- Utilise des expressions naturelles: "Comme vous me l'avez mentionné", "En reprenant votre projet de", "Selon ce que vous m'avez dit"
+- Donne des conseils précis et actionnables basés sur TOUT le contexte
 
-MÉMOIRE ET COHÉRENCE:
-- Tu as accès à TOUT l'historique de conversation précédent
-- Fais référence aux éléments mentionnés précédemment de manière naturelle
-- Construis sur les réponses précédentes pour approfondir
-- Adapte tes conseils en fonction du profil client qui émerge
+LOGIQUE DE RÉPONSE SELON L'HISTORIQUE:
+1. TOUJOURS analyser l'historique complet avant de répondre
+2. Si des besoins ont été exprimés précédemment, les prendre en compte
+3. Si demande de template explicite: crée-le en tenant compte de TOUT le contexte des échanges
+4. Si modification demandée: applique en gardant la cohérence avec les discussions précédentes
 
-LOGIQUE DE RÉPONSE:
-1. Si c'est le début: pose 2-3 questions pertinentes pour bien cerner le projet
-2. Si discussion en cours: approfondit, donne des conseils experts, suggère des solutions
-3. Si demande de template explicite: crée-le en tenant compte de TOUT le contexte
-4. Si modification: applique intelligemment en gardant la cohérence
+EXPERTISE TECHNIQUE CONTEXTUELLE:
+- Recommande en fonction du secteur/type de client déjà discuté
+- Suggère des fonctionnalités cohérentes avec les besoins exprimés
+- Explique le "pourquoi" en référence aux discussions précédentes
 
-EXPERTISE TECHNIQUE:
-- Recommande les meilleures pratiques UX/UI actuelles
-- Suggère des fonctionnalités pertinentes selon le secteur
-- Donne des conseils sur les performances, SEO, accessibilité
-- Propose des alternatives et optimisations
-
-GESTION CLIENT:
-- Détecte les besoins non exprimés
-- Propose proactivement des améliorations
-- Explique le "pourquoi" derrière tes recommandations
-- Anticipe les questions et objections
-
+HISTORIQUE ACTUEL: ${JSON.stringify(conversationHistory, null, 2)}
 Template actuel: ${contextInfo.hasTemplate ? JSON.stringify(contextInfo.templateInfo) : 'Aucun'}
 Niveau client détecté: ${contextInfo.clientLevel}
-Longueur conversation: ${contextInfo.conversationLength} échanges`
+Nombre d'échanges: ${contextInfo.conversationLength}`
             })
           });
           
@@ -243,8 +237,13 @@ Longueur conversation: ${contextInfo.conversationLength} échanges`
             setMessages(prev => [...prev, { 
               id: Date.now(), 
               type: 'agent', 
-              content: 'Parfait ! J\'ai créé le template en tenant compte de tous nos échanges précédents. Il intègre les meilleures pratiques que nous avons discutées. Regardez la prévisualisation - qu\'en pensez-vous ? Y a-t-il des aspects que vous souhaitez affiner ?' 
+              content: 'Parfait ! J\'ai créé le template en tenant compte de tous nos échanges précédents. Il intègre les meilleures pratiques que nous avons discutées. Le template va s\'ouvrir automatiquement dans un nouvel onglet pour que vous puissiez le voir en plein écran !' 
             }]);
+
+            // Ouvrir automatiquement dans un nouvel onglet
+            setTimeout(() => {
+              openTemplateInNewTab(template);
+            }, 1000);
           } else {
             let enhancedResponse = data.response;
             
@@ -261,10 +260,11 @@ Longueur conversation: ${contextInfo.conversationLength} échanges`
           }
           
         } catch (error) {
+          console.error('Erreur:', error);
           setMessages(prev => [...prev, { 
             id: Date.now(), 
             type: 'agent', 
-            content: 'Je rencontre un petit problème technique. Pouvez-vous reformuler ? En attendant, je garde en mémoire tous nos échanges précédents.' 
+            content: 'Je rencontre un petit problème technique. Pouvez-vous reformuler ? Je garde bien sûr en mémoire tous nos échanges précédents sur votre projet.' 
           }]);
         } finally {
           setIsGenerating(false);
@@ -418,46 +418,59 @@ End with </html>, no markdown fences.
                 React.createElement('div', { className: 'template-name' }, t.name),
                 React.createElement('div', { className: 'template-meta' }, `${t.userInput.substring(0, 50)}… | ${t.source}`),
                 React.createElement('div', { className: 'template-actions' },
-                  React.createElement('button', { className: 'btn btn-small btn-outline', onClick: e => { e.stopPropagation(); setCurrentTemplate(t); } }, 'Voir'),
-                  React.createElement('button', { className: 'btn btn-small btn-outline', onClick: e => { e.stopPropagation(); downloadTemplate(t); } }, 'DL')
+                  React.createElement('button', { 
+                    className: 'btn btn-small btn-preview', 
+                    onClick: e => { 
+                      e.stopPropagation(); 
+                      openTemplateInNewTab(t);
+                    } 
+                  }, '🚀 Ouvrir'),
+                  React.createElement('button', { 
+                    className: 'btn btn-small btn-outline', 
+                    onClick: e => { 
+                      e.stopPropagation(); 
+                      setCurrentTemplate(t); 
+                    } 
+                  }, '👁️ Sélectionner'),
+                  React.createElement('button', { 
+                    className: 'btn btn-small btn-outline', 
+                    onClick: e => { 
+                      e.stopPropagation(); 
+                      downloadTemplate(t); 
+                    } 
+                  }, '💾 DL')
                 )
               ))
             )
           ),
           React.createElement('div', { className: 'main-content' },
             React.createElement('div', { className: 'main-header' },
-              React.createElement('h1', { className: 'main-title' }, currentTemplate ? currentTemplate.name : 'Prévisualisation'),
+              React.createElement('h1', { className: 'main-title' }, 'Aperçu Templates'),
               React.createElement('div', { className: 'main-controls' },
-                React.createElement('div', { className: 'view-toggle' },
-                  React.createElement('button', { className: viewMode === 'preview' ? 'active' : '', onClick: () => setViewMode('preview') }, 'Aperçu'),
-                  React.createElement('button', { className: viewMode === 'code' ? 'active' : '', onClick: () => setViewMode('code') }, 'Code')
-                ),
-                viewMode === 'preview' && React.createElement('div', { className: 'view-toggle' },
-                  React.createElement('button', { className: deviceView === 'desktop' ? 'active' : '', onClick: () => setDeviceView('desktop') }, 'Desktop'),
-                  React.createElement('button', { className: deviceView === 'tablet' ? 'active' : '', onClick: () => setDeviceView('tablet') }, 'Tablet'),
-                  React.createElement('button', { className: deviceView === 'mobile' ? 'active' : '', onClick: () => setDeviceView('mobile') }, 'Mobile')
+                React.createElement('div', { style: { fontSize: '14px', color: '#6b7280' } }, 
+                  currentTemplate ? 'Template sélectionné' : 'Gestion des templates'
                 )
               )
             ),
             React.createElement('div', { className: 'preview-area' },
               !currentTemplate && React.createElement('div', { className: 'empty-state' },
                 React.createElement('div', { className: 'empty-state-icon' }, '🎨'),
-                React.createElement('h3', null, 'Aucun template sélectionné'),
-                React.createElement('p', null, 'Générez un template avec l\'IA ou sélectionnez-en un existant pour le voir ici en plein écran.')
+                React.createElement('h3', null, 'Espace de Gestion Templates'),
+                React.createElement('p', null, 'Discutez avec l\'IA pour créer des templates professionnels.'),
+                React.createElement('p', { style: { marginTop: '10px', fontSize: '14px' } }, 'Les templates générés s\'ouvriront automatiquement dans de nouveaux onglets.')
               ),
-              currentTemplate && viewMode === 'code' && React.createElement('textarea', {
-                className: 'code-editor',
-                value: currentTemplate.htmlCode,
-                readOnly: true,
-                spellCheck: false
-              }),
-              currentTemplate && viewMode === 'preview' && React.createElement('div', { className: 'device-frame' },
-                React.createElement('div', { className: `device ${deviceView}` },
-                  React.createElement('iframe', {
-                    key: currentTemplate.id,
-                    srcDoc: currentTemplate.htmlCode,
-                    title: 'Preview'
-                  })
+              currentTemplate && React.createElement('div', { className: 'template-preview-card' },
+                React.createElement('h4', null, currentTemplate.name),
+                React.createElement('p', null, 'Template créé avec succès ! Cliquez sur "Ouvrir" pour le voir en plein écran dans un nouvel onglet.'),
+                React.createElement('div', { style: { display: 'flex', gap: '15px', justifyContent: 'center' } },
+                  React.createElement('button', { 
+                    className: 'btn btn-preview', 
+                    onClick: () => openTemplateInNewTab(currentTemplate)
+                  }, '🚀 Ouvrir'),
+                  React.createElement('button', { 
+                    className: 'btn btn-outline', 
+                    onClick: () => downloadTemplate(currentTemplate)
+                  }, '💾 Télécharger')
                 )
               ),
               isGenerating && React.createElement('div', { className: 'loading-overlay' },
