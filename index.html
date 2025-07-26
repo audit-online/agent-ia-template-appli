@@ -162,10 +162,26 @@
                
             };
 
-            const callRealAI = async (userMessage) => {
+const callRealAI = async (userMessage) => {
   try {
     setAiStatus('thinking');
+    console.log('🤖 Envoi vers l\'IA:', userMessage);
     
+    // Test d'abord si la fonction est accessible
+    const testResponse = await fetch('/.netlify/functions/ai-chat', {
+      method: 'GET'
+    });
+    
+    console.log('🔍 Test fonction - Status:', testResponse.status);
+    
+    if (!testResponse.ok) {
+      throw new Error(`Fonction inaccessible: ${testResponse.status}`);
+    }
+    
+    const testData = await testResponse.json();
+    console.log('✅ Test fonction OK:', testData);
+    
+    // Maintenant faire l'appel POST
     const response = await fetch('/.netlify/functions/ai-chat', {
       method: 'POST',
       headers: {
@@ -175,36 +191,54 @@
         message: userMessage,
         systemPrompt: `Tu es un expert en création de sites web et design. Analyse la demande de l'utilisateur et :
 
-1. Identifie le type de site web nécessaire (restaurant, ecommerce, portfolio, business)
+1. Identifie le type de site web nécessaire (restaurant, ecommerce, portfolio, business, blog, landing)
 2. Recommande les sections appropriées
 3. Suggère des couleurs et un style
 4. Propose des fonctionnalités spécifiques
 5. Donne des conseils personnalisés
 
-Réponds de manière conversationnelle et enthousiaste. Utilise des emojis et du markdown pour structurer ta réponse.`,
-        context: { previousMessages: messages.slice(-3) }
+Réponds de manière conversationnelle et enthousiaste. Utilise des emojis et du markdown pour structurer ta réponse.`
       })
     });
 
+    console.log('📡 Statut réponse POST:', response.status);
+    console.log('📡 Headers réponse:', response.headers);
+
     if (!response.ok) {
-      throw new Error(`Erreur API: ${response.status}`);
+      const errorText = await response.text();
+      console.error('❌ Erreur POST:', errorText);
+      throw new Error(`Erreur ${response.status}: ${errorText}`);
     }
 
     const aiResponse = await response.json();
+    console.log('✅ Réponse IA reçue:', aiResponse);
+    
     setAiStatus('online');
     
     return {
+      id: Date.now(),
+      type: 'agent',
       content: aiResponse.response,
+      timestamp: new Date(),
       detectedType: aiResponse.detectedType,
       recommendations: aiResponse.recommendations,
-      showGenerateButton: aiResponse.detectedType ? true : false
+      showGenerateButton: aiResponse.detectedType ? true : false,
+      source: aiResponse.source,
+      sections: aiResponse.recommendations?.sections || []
     };
 
   } catch (error) {
-    console.error('Erreur IA:', error);
+    console.error('💥 Erreur complète:', error);
     setAiStatus('error');
-    // Fallback vers l'ancienne logique
-    return generateAIResponse(userMessage);
+    
+    return {
+      id: Date.now(),
+      type: 'agent',
+      content: `❌ **Erreur détectée**\n\n🔧 **Détails :**\n${error.message}\n\n📋 **Vérifications :**\n• Fonction Netlify déployée\n• Variable ANTHROPIC_KEY configurée\n• Connexion réseau stable\n\n🔄 Réessayez dans quelques secondes...`,
+      timestamp: new Date(),
+      showRetryButton: true,
+      isError: true
+    };
   }
 };
 
