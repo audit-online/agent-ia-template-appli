@@ -1,65 +1,84 @@
-// netlify/functions/ai-chat.js - Version avec debugging amélioré
+// netlify/functions/ai-chat.js - Version ultra-robuste avec debugging
 exports.handler = async (event, context) => {
-  console.log('🚀 Fonction ai-chat appelée');
-  console.log('📝 Headers:', JSON.stringify(event.headers, null, 2));
-  console.log('📦 Body:', event.body);
-
+  // Headers CORS toujours en premier
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET'
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Content-Type': 'application/json'
   };
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: JSON.stringify({ message: 'CORS OK' }) };
-  }
+  // Log de démarrage
+  console.log('🚀 Function START - Method:', event.httpMethod);
+  
+  try {
+    // Gestion CORS
+    if (event.httpMethod === 'OPTIONS') {
+      console.log('✅ CORS preflight OK');
+      return { 
+        statusCode: 200, 
+        headers, 
+        body: JSON.stringify({ message: 'CORS OK' }) 
+      };
+    }
 
-  if (event.httpMethod === 'GET') {
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ 
+    // Test GET
+    if (event.httpMethod === 'GET') {
+      console.log('✅ GET request - Testing API');
+      const testResult = {
         message: 'Fonction ai-chat opérationnelle!',
         timestamp: new Date().toISOString(),
         hasAnthropicKey: !!process.env.ANTHROPIC_KEY,
-        keyLength: process.env.ANTHROPIC_KEY ? process.env.ANTHROPIC_KEY.length : 0
-      })
-    };
-  }
+        keyLength: process.env.ANTHROPIC_KEY ? process.env.ANTHROPIC_KEY.length : 0,
+        nodeVersion: process.version,
+        environment: process.env.NODE_ENV || 'unknown'
+      };
+      console.log('📤 Sending test result:', testResult);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(testResult)
+      };
+    }
 
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
-  }
+    // Vérification méthode POST
+    if (event.httpMethod !== 'POST') {
+      console.log('❌ Method not allowed:', event.httpMethod);
+      return {
+        statusCode: 405,
+        headers,
+        body: JSON.stringify({ error: 'Method not allowed', method: event.httpMethod })
+      };
+    }
 
-  try {
+    // POST - Vérification clé API
     if (!process.env.ANTHROPIC_KEY) {
-      console.error('❌ ANTHROPIC_KEY manquante');
+      console.error('❌ ANTHROPIC_KEY missing');
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Configuration manquante',
-          details: 'ANTHROPIC_KEY non définie',
-          help: 'Vérifiez les variables d\'environnement Netlify'
+          details: 'ANTHROPIC_KEY non définie dans les variables d\'environnement Netlify',
+          help: 'Ajoutez ANTHROPIC_KEY dans Site Settings > Environment Variables'
         })
       };
     }
 
+    // Parse du body
     let requestData;
     try {
       requestData = JSON.parse(event.body || '{}');
+      console.log('📨 Request parsed successfully');
     } catch (parseError) {
-      console.error('❌ Erreur parsing JSON:', parseError);
+      console.error('❌ JSON parse error:', parseError.message);
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ 
           error: 'JSON invalide',
-          details: parseError.message
+          details: parseError.message,
+          receivedBody: event.body?.substring(0, 200)
         })
       };
     }
@@ -67,195 +86,125 @@ exports.handler = async (event, context) => {
     const { message, systemPrompt, conversationHistory, context } = requestData;
     
     if (!message) {
+      console.log('❌ No message provided');
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Message requis' })
+        body: JSON.stringify({ 
+          error: 'Message requis',
+          received: Object.keys(requestData)
+        })
       };
     }
 
-    console.log('📨 Message reçu:', message.substring(0, 100));
-    console.log('💬 Historique longueur:', conversationHistory?.length || 0);
+    console.log('📨 Processing message:', message.substring(0, 50) + '...');
 
-    // Liste des modèles à essayer par ordre de préférence
-    const modelsToTry = [
-      'claude-3-5-sonnet-20241022',
-      'claude-3-5-sonnet-20240620', 
-      'claude-3-sonnet-20240229',
-      'claude-3-haiku-20240307'
-    ];
-
-    let lastError = null;
+    // Essai avec un seul modèle pour simplifier
+    const model = 'claude-3-haiku-20240307'; // Le plus simple et rapide
     
-    // Essayer chaque modèle jusqu'à ce qu'un fonctionne
-    for (const model of modelsToTry) {
-      try {
-        console.log(`🔄 Essai du modèle: ${model}`);
-        
-        // Construction du prompt plus robuste
-        let finalPrompt;
-        if (conversationHistory && conversationHistory.length > 0) {
-          finalPrompt = `${systemPrompt}\n\nVoici notre conversation complète jusqu'à présent:\n${JSON.stringify(conversationHistory, null, 2)}\n\nRéponds en tenant compte de TOUT cet historique. Ton dernier message doit être cohérent avec tout ce qui a été dit précédemment.`;
-        } else {
-          finalPrompt = `${systemPrompt || 'Tu es un assistant IA spécialisé dans la création de sites web.'}\n\nMessage utilisateur: ${message}`;
-        }
+    try {
+      console.log(`🔄 Trying model: ${model}`);
+      
+      // Construction simple du prompt
+      const finalPrompt = systemPrompt ? 
+        `${systemPrompt}\n\nMessage: ${message}` : 
+        `Tu es un assistant IA spécialisé dans la création de sites web.\n\nMessage: ${message}`;
 
-        const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': process.env.ANTHROPIC_KEY,
-            'anthropic-version': '2023-06-01'
-          },
+      console.log('📝 Prompt length:', finalPrompt.length);
+
+      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: model,
+          max_tokens: 4000, // Réduit pour éviter les timeouts
+          temperature: 0.7,
+          messages: [
+            {
+              role: 'user',
+              content: finalPrompt
+            }
+          ]
+        })
+      });
+
+      console.log(`📡 Claude response status: ${claudeResponse.status}`);
+
+      if (!claudeResponse.ok) {
+        const errorText = await claudeResponse.text();
+        console.error('❌ Claude API error:', claudeResponse.status, errorText);
+        return {
+          statusCode: 500,
+          headers,
           body: JSON.stringify({
-            model: model,
-            max_tokens: 8000,
-            temperature: 0.8,
-            messages: [
-              {
-                role: 'user',
-                content: finalPrompt
-              }
-            ]
+            error: 'Erreur API Claude',
+            status: claudeResponse.status,
+            details: errorText.substring(0, 500)
           })
-        });
-
-        console.log(`📡 Réponse Claude status: ${claudeResponse.status}`);
-
-        if (claudeResponse.ok) {
-          const aiData = await claudeResponse.json();
-          const aiResponse = aiData.content[0].text;
-          const analysis = analyzeUserRequest(message);
-
-          console.log(`✅ Succès avec le modèle: ${model}`);
-          console.log(`📏 Longueur de la réponse: ${aiResponse.length} caractères`);
-          
-          return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-              response: aiResponse,
-              detectedType: analysis.type,
-              recommendations: analysis.recommendations,
-              source: 'claude-api',
-              modelUsed: model,
-              responseLength: aiResponse.length,
-              timestamp: new Date().toISOString(),
-              conversationContext: context || null
-            })
-          };
-        } else {
-          const errorText = await claudeResponse.text();
-          lastError = `${model}: ${claudeResponse.status} - ${errorText}`;
-          console.log(`❌ Échec avec ${model}:`, lastError);
-        }
-        
-      } catch (error) {
-        lastError = `${model}: ${error.message}`;
-        console.log(`❌ Erreur avec ${model}:`, error.message);
-        console.error('Stack trace:', error.stack);
+        };
       }
+
+      const aiData = await claudeResponse.json();
+      const aiResponse = aiData.content[0].text;
+
+      console.log(`✅ Success! Response length: ${aiResponse.length}`);
+
+      const result = {
+        response: aiResponse,
+        source: 'claude-api',
+        modelUsed: model,
+        responseLength: aiResponse.length,
+        timestamp: new Date().toISOString()
+      };
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(result)
+      };
+
+    } catch (claudeError) {
+      console.error('❌ Claude request failed:', claudeError.message);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: 'Erreur lors de l\'appel à Claude',
+          details: claudeError.message,
+          timestamp: new Date().toISOString()
+        })
+      };
     }
 
-    // Si aucun modèle n'a fonctionné
-    console.error('💥 Tous les modèles ont échoué');
+  } catch (globalError) {
+    console.error('💥 Global error:', globalError.message);
+    console.error('Stack:', globalError.stack);
+    
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: 'Tous les modèles Claude ont échoué',
-        details: lastError,
-        modelsAttempted: modelsToTry,
-        troubleshooting: {
-          step1: 'Vérifiez la clé API Anthropic',
-          step2: 'Vérifiez les logs Netlify',
-          step3: 'Testez avec curl directement'
-        }
-      })
-    };
-
-  } catch (error) {
-    console.error('💥 Erreur générale:', error);
-    console.error('Stack trace:', error.stack);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Erreur serveur interne',
-        details: error.message,
-        stack: error.stack?.split('\n').slice(0, 3) // Première ligne de la stack
+        details: globalError.message,
+        timestamp: new Date().toISOString(),
+        function: 'ai-chat'
       })
     };
   }
 };
 
-// Fonction d'analyse intelligente
+// Fonctions d'analyse simplifiées
 function analyzeUserRequest(message) {
-  const keywords = {
-    restaurant: ['restaurant', 'café', 'food', 'menu', 'cuisine', 'chef', 'plat', 'gastronomie'],
-    ecommerce: ['boutique', 'vente', 'produit', 'commerce', 'shop', 'magasin', 'e-commerce'],
-    portfolio: ['portfolio', 'artiste', 'photo', 'design', 'créatif', 'photographe'],
-    business: ['entreprise', 'service', 'consulting', 'agence', 'bureau', 'société'],
-    blog: ['blog', 'article', 'contenu', 'magazine', 'actualité'],
-    landing: ['landing', 'conversion', 'campagne', 'marketing', 'promotion']
-  };
-
-  let detectedType = null;
-  let maxScore = 0;
-
-  Object.entries(keywords).forEach(([type, words]) => {
-    const score = words.filter(word => 
-      message.toLowerCase().includes(word)
-    ).length;
-    
-    if (score > maxScore) {
-      maxScore = score;
-      detectedType = type;
-    }
-  });
-
   return {
-    type: detectedType,
+    type: 'general',
     recommendations: {
-      sections: getSectionsForType(detectedType),
-      colors: getColorsForType(detectedType),
-      features: getFeaturesForType(detectedType)
+      sections: ['header', 'hero', 'about', 'contact'],
+      colors: ['#6B7280', '#3B82F6', '#10B981'],
+      features: ['Présentation', 'Services', 'Contact']
     }
   };
-}
-
-function getSectionsForType(type) {
-  const sectionMap = {
-    restaurant: ['header', 'hero', 'menu', 'about', 'contact', 'gallery', 'testimonials'],
-    ecommerce: ['header', 'hero', 'products', 'categories', 'cart', 'checkout', 'testimonials'],
-    portfolio: ['header', 'hero', 'projects', 'about', 'skills', 'contact', 'testimonials'],
-    business: ['header', 'hero', 'services', 'about', 'team', 'contact', 'pricing'],
-    blog: ['header', 'hero', 'articles', 'categories', 'sidebar', 'contact', 'newsletter'],
-    landing: ['header', 'hero', 'features', 'benefits', 'testimonials', 'pricing', 'cta']
-  };
-  return sectionMap[type] || ['header', 'hero', 'about', 'contact'];
-}
-
-function getColorsForType(type) {
-  const colorMap = {
-    restaurant: ['#8B4513', '#DAA520', '#CD853F'],
-    ecommerce: ['#2563EB', '#DC2626', '#059669'],
-    portfolio: ['#7C3AED', '#EC4899', '#F59E0B'],
-    business: ['#1F2937', '#3B82F6', '#10B981'],
-    blog: ['#6366F1', '#8B5CF6', '#EC4899'],
-    landing: ['#EF4444', '#F97316', '#EAB308']
-  };
-  return colorMap[type] || ['#6B7280', '#3B82F6', '#10B981'];
-}
-
-function getFeaturesForType(type) {
-  const featureMap = {
-    restaurant: ['Menu en ligne', 'Réservations', 'Galerie photos', 'Avis clients'],
-    ecommerce: ['Catalogue produits', 'Panier d\'achat', 'Paiement sécurisé', 'Gestion commandes'],
-    portfolio: ['Galerie projets', 'CV téléchargeable', 'Formulaire contact', 'Témoignages'],
-    business: ['Présentation services', 'Équipe', 'Témoignages clients', 'Devis en ligne'],
-    blog: ['Système d\'articles', 'Catégories', 'Recherche', 'Newsletter'],
-    landing: ['Call-to-action', 'Formulaire capture', 'Témoignages', 'Garanties']
-  };
-  return featureMap[type] || ['Présentation', 'Services', 'Contact'];
 }

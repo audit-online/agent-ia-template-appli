@@ -94,32 +94,58 @@
         }]);
       }, []);
 
-      /* –––––  test API avec diagnostic ––––– */
+      /* –––––  test API avec diagnostic complet ––––– */
       const testAPI = async () => {
         try {
-          console.log('🔧 Test de l\'API...');
-          const r = await fetch('/.netlify/functions/ai-chat', { method: 'GET' });
-          console.log('📡 Statut API:', r.status);
+          console.log('🔧 Test de l\'API Netlify...');
+          const r = await fetch('/.netlify/functions/ai-chat', { 
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          console.log('📡 Statut de réponse:', r.status);
+          console.log('📡 Headers de réponse:', r.headers);
+          
+          const responseText = await r.text();
+          console.log('📡 Réponse brute:', responseText);
           
           if (r.ok) {
-            const data = await r.json();
-            console.log('✅ Réponse API:', data);
-            setApiStatus('working');
+            try {
+              const data = JSON.parse(responseText);
+              console.log('✅ Réponse parsée:', data);
+              setApiStatus('working');
+              setMessages(prev => [...prev, { 
+                id: Date.now(), 
+                type: 'agent', 
+                content: `✅ API Netlify OK – prêt pour Claude.\n🔑 Clé API: ${data.hasAnthropicKey ? 'Configurée (' + (data.keyLength || 0) + ' caractères)' : 'MANQUANTE ❌'}\n📊 Timestamp: ${data.timestamp}` 
+              }]);
+            } catch (parseError) {
+              console.error('❌ Erreur parsing JSON:', parseError);
+              setApiStatus('broken');
+              setMessages(prev => [...prev, { 
+                id: Date.now(), 
+                type: 'agent', 
+                content: `⚠️ API répond mais JSON invalide.\nRéponse: ${responseText.substring(0, 200)}...` 
+              }]);
+            }
+          } else {
+            console.error('❌ Erreur HTTP:', r.status, responseText);
+            setApiStatus('broken');
             setMessages(prev => [...prev, { 
               id: Date.now(), 
               type: 'agent', 
-              content: `✅ API Netlify OK – prêt pour Claude.\n🔑 Clé API: ${data.hasAnthropicKey ? 'Configurée' : 'MANQUANTE'}` 
+              content: `❌ API erreur ${r.status}\n📝 Réponse: ${responseText}\n\n🔧 Vérifiez:\n• Variables d'environnement Netlify\n• Logs de la fonction\n• Syntaxe du code` 
             }]);
-          } else {
-            throw new Error(`HTTP ${r.status}`);
           }
-        } catch (error) {
-          console.error('❌ Erreur API:', error);
+        } catch (networkError) {
+          console.error('❌ Erreur réseau complète:', networkError);
           setApiStatus('broken');
           setMessages(prev => [...prev, { 
             id: Date.now(), 
             type: 'agent', 
-            content: `❌ API indisponible (${error.message})\n\n🔧 Solutions:\n• Vérifiez les logs Netlify\n• Vérifiez la variable ANTHROPIC_KEY\n• Redéployez le site` 
+            content: `❌ Erreur réseau: ${networkError.message}\n\n🔧 Causes possibles:\n• Fonction Netlify non déployée\n• URL incorrecte\n• Problème CORS\n• Timeout serveur` 
           }]);
         }
       };
@@ -236,9 +262,18 @@ Niveau client détecté: ${contextInfo.clientLevel}
 Nombre d'échanges: ${contextInfo.conversationLength}`
             })
           });
-          
-          if (!res.ok) throw new Error('Erreur IA');
+
+          console.log('📡 Réponse fetch status:', res.status);
+          console.log('📡 Réponse fetch headers:', res.headers);
+
+          if (!res.ok) {
+            const errorText = await res.text();
+            console.error('❌ Erreur HTTP:', res.status, errorText);
+            throw new Error(`HTTP ${res.status}: ${errorText.substring(0, 200)}`);
+          }
+
           const data = await res.json();
+          console.log('✅ Données reçues:', data);
           
           if (data.response.includes('<!DOCTYPE') || data.response.includes('<html')) {
             let html = data.response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
