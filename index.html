@@ -346,6 +346,7 @@
                             currentTemplate && viewMode === 'preview' && React.createElement('div', { className: 'device-frame' },
                                 React.createElement('div', { className: `device ${deviceView}` },
                                     React.createElement('iframe', {
+                                         key: currentTemplate.id,  
                                         srcDoc: currentTemplate.htmlCode,
                                         title: 'Preview'
                                     })
