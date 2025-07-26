@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Agent IA Template – Dashboard Pro</title>
+  <title>Agent IA - Générateur de Prototypes d'Applications</title>
 
   <!-- React + Babel CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -43,25 +43,25 @@
     .send-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 15px rgba(102,126,234,.4)}
     .send-btn:disabled{opacity:.6;cursor:not-allowed}
     
-    /* SIDEBAR TEMPLATES */
+    /* SIDEBAR PROTOTYPES */
     .sidebar{background:#fff;display:flex;flex-direction:column;overflow:hidden}
     .sidebar-header{padding:20px;background:#f8fafc;border-bottom:1px solid #e5e7eb}
     .sidebar-title{font-size:1.1rem;font-weight:700;color:#374151;margin-bottom:10px}
-    .current-template{background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:15px;border-radius:12px;text-align:center;font-size:13px}
-    .current-template .name{font-weight:600;margin-bottom:5px}
-    .current-template .actions{display:flex;gap:8px;justify-content:center;margin-top:10px}
+    .current-prototype{background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:15px;border-radius:12px;text-align:center;font-size:13px}
+    .current-prototype .name{font-weight:600;margin-bottom:5px}
+    .current-prototype .actions{display:flex;gap:8px;justify-content:center;margin-top:10px}
     .btn-sm{padding:6px 12px;border:none;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
     .btn-outline{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)}
     .btn-outline:hover{background:rgba(255,255,255,.3)}
     
-    /* LISTE TEMPLATES */
-    .templates-list{flex:1;overflow-y:auto}
-    .template-item{padding:15px 20px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:all .2s}
-    .template-item:hover{background:#f8fafc}
-    .template-item.active{background:#f0f9ff;border-left:3px solid #3b82f6}
-    .template-name{font-weight:600;color:#111827;font-size:13px;margin-bottom:5px}
-    .template-meta{color:#6b7280;font-size:11px;margin-bottom:8px}
-    .template-actions{display:flex;gap:6px}
+    /* LISTE PROTOTYPES */
+    .prototypes-list{flex:1;overflow-y:auto}
+    .prototype-item{padding:15px 20px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:all .2s}
+    .prototype-item:hover{background:#f8fafc}
+    .prototype-item.active{background:#f0f9ff;border-left:3px solid #3b82f6}
+    .prototype-name{font-weight:600;color:#111827;font-size:13px;margin-bottom:5px}
+    .prototype-meta{color:#6b7280;font-size:11px;margin-bottom:8px}
+    .prototype-actions{display:flex;gap:6px}
     .btn-xs{padding:4px 8px;font-size:10px;border-radius:6px;border:none;cursor:pointer;transition:all .2s}
     .btn-primary{background:#3b82f6;color:#fff}
     .btn-secondary{background:#f3f4f6;color:#374151}
@@ -89,9 +89,9 @@
     const App = () => {
       const [messages, setMessages] = useState([]);
       const [inputMessage, setInputMessage] = useState('');
-      const [templates, setTemplates] = useState([]);
+      const [prototypes, setPrototypes] = useState([]);
       const [isGenerating, setIsGenerating] = useState(false);
-      const [currentTemplate, setCurrentTemplate] = useState(null);
+      const [currentPrototype, setCurrentPrototype] = useState(null);
       const [apiStatus, setApiStatus] = useState('testing');
 
       useEffect(() => {
@@ -103,7 +103,7 @@
         setMessages([{
           id: 1,
           type: 'agent',
-          content: 'Bonjour ! Je suis Claude, votre expert en création de sites web.\n\nAvec 15 ans d\'expérience, je vous accompagne pour :\n• Analyser les besoins de vos clients\n• Recommander les meilleures solutions\n• Créer des templates sur-mesure\n• Affiner vos projets\n\nParlez-moi de votre projet !'
+          content: '🚀 **Agent IA - Générateur de Prototypes d\'Applications**\n\nJe suis Claude, expert en création de **prototypes d\'applications complètes** !\n\n**Ce que je crée pour vous :**\n• 📱 Applications web interactives complètes\n• 🎨 Design haut de gamme niveau production\n• 💾 Données simulées réalistes\n• 🔄 Navigation fluide multi-écrans\n• 📊 Tableaux de bord avec graphiques\n• 💳 Processus métier complets\n\n**Vos clients verront une VRAIE application fonctionnelle !**\n\nDécrivez-moi votre projet et je créerai un prototype professionnel que vos clients pourront tester comme une vraie app ! 💼✨'
         }]);
       }, []);
 
@@ -127,10 +127,10 @@
         }
       };
 
-      const openTemplate = (template) => {
+      const openPrototype = (prototype) => {
         try {
-          console.log('🚀 Ouverture template:', template.name);
-          const blob = new Blob([template.htmlCode], { type: 'text/html' });
+          console.log('🚀 Ouverture prototype:', prototype.name);
+          const blob = new Blob([prototype.htmlCode], { type: 'text/html' });
           const url = URL.createObjectURL(blob);
           const newWindow = window.open(url, '_blank');
           
@@ -142,7 +142,7 @@
             // Fallback: télécharger si popup bloqué
             const a = document.createElement('a');
             a.href = url;
-            a.download = `template-${template.id}.html`;
+            a.download = `prototype-${prototype.id}.html`;
             a.click();
             URL.revokeObjectURL(url);
           }
@@ -151,14 +151,14 @@
         }
       };
 
-      const downloadTemplate = (template) => {
+      const downloadPrototype = (prototype) => {
         try {
-          console.log('💾 Téléchargement template:', template.name);
-          const blob = new Blob([template.htmlCode], { type: 'text/html' });
+          console.log('💾 Téléchargement prototype:', prototype.name);
+          const blob = new Blob([prototype.htmlCode], { type: 'text/html' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `template-${template.id}.html`;
+          a.download = `prototype-${prototype.id}.html`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -174,21 +174,22 @@
         if (lower.includes('restaurant') || lower.includes('kebab')) return 'restaurant';
         if (lower.includes('boutique') || lower.includes('shop')) return 'ecommerce';
         if (lower.includes('portfolio')) return 'portfolio';
+        if (lower.includes('crm') || lower.includes('gestion')) return 'business';
         return 'moderne';
       };
 
-      const createTemplate = (userInput, htmlCode, source) => {
-        const template = {
+      const createPrototype = (userInput, htmlCode, source) => {
+        const prototype = {
           id: Date.now(),
-          name: `Template ${detectType(userInput)} – ${new Date().toLocaleTimeString()}`,
+          name: `App ${detectType(userInput)} – ${new Date().toLocaleTimeString()}`,
           userInput,
           htmlCode,
           source,
           createdAt: new Date()
         };
-        setTemplates(prev => [template, ...prev]);
-        setCurrentTemplate(template);
-        return template;
+        setPrototypes(prev => [prototype, ...prev]);
+        setCurrentPrototype(prototype);
+        return prototype;
       };
 
       const handleSendMessage = async () => {
@@ -217,7 +218,7 @@
             .map(msg => ({ role: msg.type === 'user' ? 'user' : 'assistant', content: msg.content }));
 
           // Détecter si c'est une demande de modification
-          const isModificationRequest = currentTemplate && 
+          const isModificationRequest = currentPrototype && 
             (messageContent.toLowerCase().includes('modifi') ||
              messageContent.toLowerCase().includes('change') ||
              messageContent.toLowerCase().includes('ajuste') ||
@@ -228,34 +229,70 @@
           let systemPrompt;
           
           if (isModificationRequest) {
-            systemPrompt = `Tu es un expert en modification de templates HTML. 
+            systemPrompt = `Tu es un expert en modification de PROTOTYPES D'APPLICATION. 
 
-CONTEXTE : L'utilisateur a un template existant et veut le modifier.
+CONTEXTE : L'utilisateur a un prototype d'application et veut le modifier.
 
-TEMPLATE ACTUEL :
-${currentTemplate.htmlCode}
+PROTOTYPE ACTUEL :
+${currentPrototype.htmlCode}
 
 DEMANDE DE MODIFICATION : ${messageContent}
 
 INSTRUCTIONS :
-1. Analyse le template HTML existant
+1. Analyse le prototype d'application existant
 2. Applique EXACTEMENT la modification demandée
-3. Conserve toute la structure et le design existant
-4. Ne modifie que ce qui est explicitement demandé
-5. Retourne le HTML complet modifié (DOCTYPE → </html>)
-6. Assure-toi que le HTML reste valide et fonctionnel
+3. Conserve toute la structure, navigation et fonctionnalités
+4. Maintiens le niveau de qualité haut de gamme
+5. Assure-toi que toutes les interactions restent fonctionnelles
+6. Retourne le HTML complet modifié (DOCTYPE → </html>)
 
-IMPORTANT : Réponds UNIQUEMENT avec le code HTML complet modifié, sans explications.`;
+IMPORTANT : Réponds UNIQUEMENT avec le code HTML complet du prototype modifié.`;
           } else {
-            systemPrompt = `Tu es Claude, expert senior en création de sites web avec 15 ans d'expérience.
+            systemPrompt = `Tu es Claude, expert senior en création de PROTOTYPES D'APPLICATIONS complètes et interactives.
 
-RÈGLES :
-- Donne des CONSEILS d'expert et des RECOMMANDATIONS
-- Propose de créer un template uniquement quand pertinent
-- Crée du code HTML complet SEULEMENT si demandé explicitement avec : "créer le template", "créer un template", "génère le code"
-- Pour les conseils, termine par : "Voulez-vous que je crée un template pour visualiser cette solution ?"
+MISSION : Créer des prototypes d'applications haut de gamme pour impressionner les clients.
 
-MÉMOIRE : Utilise tout l'historique de conversation pour donner des réponses cohérentes.
+RÈGLES POUR LES PROTOTYPES :
+- Crée des APPLICATIONS COMPLÈTES, pas des sites vitrines
+- Design niveau PRODUCTION (moderne, professionnel, premium)
+- FONCTIONNALITÉS RÉELLES : navigation, formulaires, données simulées
+- MULTI-ÉCRANS : plusieurs pages/vues dans la même app
+- DONNÉES SIMULÉES réalistes (clients, commandes, stats, etc.)
+- INTERACTIONS avancées : modals, drag&drop, animations fluides
+- RESPONSIVE parfait mobile/desktop
+- PERFORMANCE optimisée
+
+STRUCTURE TYPE D'APPLICATION :
+1. Écran de connexion/accueil
+2. Tableau de bord principal
+3. Modules métier (selon le secteur)
+4. Paramètres/profil
+5. Navigation fluide entre tout
+
+TECHNOLOGIES À UTILISER :
+- HTML5 + CSS3 moderne (flexbox, grid, animations)
+- JavaScript vanilla avancé
+- Charts.js pour graphiques (via CDN)
+- Icônes (CSS ou SVG inline)
+- Données JSON simulées en dur
+- LocalStorage pour persistance
+
+SECTEURS D'EXPERTISE :
+- Restaurant : Backoffice + App client + Caisse
+- E-commerce : Admin + Boutique + Gestion
+- Services : CRM + Facturation + Planning
+- Immobilier : Gestion biens + Prospects + Visites
+
+QUALITÉ EXIGÉE :
+- Code propre et organisé
+- Design cohérent et moderne
+- Fonctionnalités réellement utilisables
+- Données crédibles et variées
+- UX intuitive et fluide
+
+IMPORTANT : Crée une VRAIE APPLICATION que le client peut tester comme si c'était un produit fini !
+
+MÉMOIRE : Utilise tout l'historique pour créer l'app parfaite selon les besoins discutés.
 
 HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
           }
@@ -272,49 +309,49 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
 
           const data = await res.json();
           
-          // Vérifier si c'est un template HTML complet
-          const isRealTemplate = data.response.includes('<!DOCTYPE html>') && 
+          // Vérifier si c'est un prototype HTML complet
+          const isRealPrototype = data.response.includes('<!DOCTYPE html>') && 
                                 data.response.includes('<html') && 
                                 data.response.includes('</html>') &&
                                 data.response.length > 1000;
           
-          if (isRealTemplate) {
+          if (isRealPrototype) {
             let html = data.response.replace(/```html\n?/g, '').replace(/```\n?/g, '').trim();
             
             if (isModificationRequest) {
-              // Modification d'un template existant
-              const modifiedTemplate = {
-                ...currentTemplate,
+              // Modification d'un prototype existant
+              const modifiedPrototype = {
+                ...currentPrototype,
                 id: Date.now(),
-                name: currentTemplate.name.replace('–', '(modifié) –'),
+                name: currentPrototype.name.replace('–', '(modifié) –'),
                 htmlCode: html,
                 source: 'ai-modified'
               };
-              setTemplates(prev => [modifiedTemplate, ...prev]);
-              setCurrentTemplate(modifiedTemplate);
+              setPrototypes(prev => [modifiedPrototype, ...prev]);
+              setCurrentPrototype(modifiedPrototype);
               
               setMessages(prev => [...prev, { 
                 id: Date.now(), 
                 type: 'agent', 
-                content: '✅ Template modifié avec succès ! Les changements ont été appliqués.' 
+                content: '✅ **Prototype d\'application modifié !** Les changements ont été appliqués avec succès. Testez votre application mise à jour !' 
               }]);
               
               setTimeout(() => {
-                console.log('⏰ Ouverture automatique template modifié...');
-                openTemplate(modifiedTemplate);
+                console.log('⏰ Ouverture automatique prototype modifié...');
+                openPrototype(modifiedPrototype);
               }, 1000);
             } else {
-              // Nouveau template
-              const template = createTemplate(messageContent, html, 'ai-expert');
+              // Nouveau prototype
+              const prototype = createPrototype(messageContent, html, 'ai-expert');
               setMessages(prev => [...prev, { 
                 id: Date.now(), 
                 type: 'agent', 
-                content: '✅ Template créé ! Il va s\'ouvrir automatiquement.' 
+                content: '🚀 **Prototype d\'application créé !** Votre application professionnelle va s\'ouvrir automatiquement. Vos clients vont être impressionnés !' 
               }]);
               
               setTimeout(() => {
-                console.log('⏰ Ouverture automatique nouveau template...');
-                openTemplate(template);
+                console.log('⏰ Ouverture automatique nouveau prototype...');
+                openPrototype(prototype);
               }, 1000);
             }
           } else {
@@ -350,8 +387,8 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
           // ZONE PRINCIPALE - CONVERSATION
           React.createElement('div', { className: 'main-area' },
             React.createElement('div', { className: 'main-header' },
-              React.createElement('h1', null, 'Agent IA Template'),
-              React.createElement('p', null, 'Expert en création de sites web'),
+              React.createElement('h1', null, 'Agent IA - Prototypes d\'Apps'),
+              React.createElement('p', null, 'Générateur d\'applications professionnelles'),
               React.createElement('div', { className: 'status-badge' },
                 React.createElement('div', { className: 'status-dot' }),
                 apiStatus === 'working' ? 'IA Claude Active' : 'Mode Test'
@@ -373,7 +410,7 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
                   React.createElement('div', { className: 'dot' }),
                   React.createElement('div', { className: 'dot' })
                 ),
-                React.createElement('span', null, 'Claude réfléchit...')
+                React.createElement('span', null, 'Claude crée votre prototype...')
               )
             ),
             
@@ -385,9 +422,9 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
                     value: inputMessage,
                     onChange: e => setInputMessage(e.target.value),
                     onKeyPress: handleKeyPress,
-                    placeholder: currentTemplate ? 
-                      'Demandez des modifications du template...' : 
-                      'Décrivez votre projet ou posez une question...',
+                    placeholder: currentPrototype ? 
+                      'Demandez des améliorations de votre prototype...' : 
+                      'Décrivez l\'application que vous voulez créer...',
                     disabled: isGenerating
                   })
                 ),
@@ -400,69 +437,69 @@ HISTORIQUE : ${JSON.stringify(conversationHistory, null, 2)}`;
             )
           ),
           
-          // SIDEBAR TEMPLATES
+          // SIDEBAR PROTOTYPES
           React.createElement('div', { className: 'sidebar' },
             React.createElement('div', { className: 'sidebar-header' },
-              React.createElement('div', { className: 'sidebar-title' }, 'Templates'),
+              React.createElement('div', { className: 'sidebar-title' }, 'Prototypes d\'Apps'),
               
-              currentTemplate && React.createElement('div', { className: 'current-template' },
-                React.createElement('div', { className: 'name' }, currentTemplate.name),
-                React.createElement('div', null, 'Template actuel'),
+              currentPrototype && React.createElement('div', { className: 'current-prototype' },
+                React.createElement('div', { className: 'name' }, currentPrototype.name),
+                React.createElement('div', null, 'Prototype actuel'),
                 React.createElement('div', { className: 'actions' },
                   React.createElement('button', { 
                     className: 'btn-sm btn-outline', 
                     onClick: () => {
-                      console.log('🖱️ Clic bouton Voir - Template:', currentTemplate.name);
-                      openTemplate(currentTemplate);
+                      console.log('🖱️ Clic bouton Tester App - Prototype:', currentPrototype.name);
+                      openPrototype(currentPrototype);
                     }
-                  }, '🚀 Voir'),
+                  }, '🚀 Tester App'),
                   React.createElement('button', { 
                     className: 'btn-sm btn-outline', 
-                    onClick: () => downloadTemplate(currentTemplate)
+                    onClick: () => downloadPrototype(currentPrototype)
                   }, '💾 DL')
                 )
               ),
               
-              // Bouton de test si pas de template
-              !currentTemplate && React.createElement('button', {
+              // Demo prototype si pas de prototype
+              !currentPrototype && React.createElement('button', {
                 className: 'btn-sm',
                 style: { background: '#f59e0b', color: '#fff', width: '100%', marginTop: '10px' },
                 onClick: () => {
-                  const testHTML = '<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Test Template</h1><p>Si vous voyez ceci, l\'ouverture d\'onglet fonctionne !</p></body></html>';
-                  const testTemplate = { id: 'test', name: 'Test', htmlCode: testHTML };
-                  console.log('🧪 Test ouverture onglet...');
-                  openTemplate(testTemplate);
+                  const demoHTML = `<!DOCTYPE html><html><head><title>Demo App Restaurant</title><style>body{font-family:system-ui;margin:0;background:#f8fafc}.container{max-width:1200px;margin:0 auto;padding:20px}.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;border-radius:15px;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.card{background:#fff;padding:20px;border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,0.1);border:1px solid #e5e7eb}.card h3{color:#1f2937;margin-bottom:10px}.btn{background:#10b981;color:#fff;padding:10px 20px;border:none;border-radius:8px;cursor:pointer;margin-top:10px}.btn:hover{background:#059669}</style></head><body><div class="container"><div class="header"><h1>🏪 Restaurant Manager Pro</h1><p>Prototype d'application complète de gestion</p></div><div class="grid"><div class="card"><h3>📊 Tableau de Bord</h3><p>Vue d'ensemble des ventes, commandes et statistiques en temps réel</p><button class="btn">Accéder</button></div><div class="card"><h3>📱 App Client</h3><p>Interface client pour commandes, livraisons et paiements</p><button class="btn">Tester</button></div><div class="card"><h3>💰 Caisse</h3><p>Système de caisse connecté avec gestion des paiements</p><button class="btn">Ouvrir</button></div><div class="card"><h3>📋 Gestion Stock</h3><p>Inventaire, fournisseurs et approvisionnements</p><button class="btn">Gérer</button></div><div class="card"><h3>👥 Équipe</h3><p>Planning, paie et gestion des employés</p><button class="btn">Planifier</button></div><div class="card"><h3>📈 Analytics</h3><p>Rapports détaillés et analyses de performance</p><button class="btn">Analyser</button></div></div></div></body></html>`;
+                  const demoApp = { id: 'demo', name: 'Demo App Restaurant', htmlCode: demoHTML };
+                  console.log('🎬 Ouverture demo prototype...');
+                  openPrototype(demoApp);
                 }
-              }, '🧪 Tester ouverture onglet')
+              }, '🎬 Voir Demo Prototype')
             ),
             
-            React.createElement('div', { className: 'templates-list' },
-              templates.map(t => 
+            React.createElement('div', { className: 'prototypes-list' },
+              prototypes.map(t => 
                 React.createElement('div', { 
                   key: t.id, 
-                  className: `template-item ${currentTemplate?.id === t.id ? 'active' : ''}`,
-                  onClick: () => setCurrentTemplate(t)
+                  className: `prototype-item ${currentPrototype?.id === t.id ? 'active' : ''}`,
+                  onClick: () => setCurrentPrototype(t)
                 },
-                  React.createElement('div', { className: 'template-name' }, t.name),
-                  React.createElement('div', { className: 'template-meta' }, 
+                  React.createElement('div', { className: 'prototype-name' }, t.name),
+                  React.createElement('div', { className: 'prototype-meta' }, 
                     `${t.source} • ${t.createdAt.toLocaleTimeString()}`
                   ),
-                  React.createElement('div', { className: 'template-actions' },
+                  React.createElement('div', { className: 'prototype-actions' },
                     React.createElement('button', { 
                       className: 'btn-xs btn-primary', 
-                      onClick: e => { e.stopPropagation(); openTemplate(t); }
-                    }, 'Voir'),
+                      onClick: e => { e.stopPropagation(); openPrototype(t); }
+                    }, 'Tester'),
                     React.createElement('button', { 
                       className: 'btn-xs btn-secondary', 
-                      onClick: e => { e.stopPropagation(); downloadTemplate(t); }
+                      onClick: e => { e.stopPropagation(); downloadPrototype(t); }
                     }, 'DL')
                   )
                 )
               ),
               
-              templates.length === 0 && React.createElement('div', { 
+              prototypes.length === 0 && React.createElement('div', { 
                 style: { padding: '20px', textAlign: 'center', color: '#6b7280', fontSize: '13px' }
-              }, 'Aucun template créé')
+              }, 'Aucun prototype créé')
             )
           )
         )
